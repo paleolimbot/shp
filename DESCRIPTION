@@ -17,3 +17,5 @@ Imports:
     wk
 LinkingTo:
     wk
+Suggests: 
+    testthat
