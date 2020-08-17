@@ -1,0 +1,19 @@
+Package: shp
+Title: Read Shapefiles
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Dewey",
+           family = "Dunnington",
+           role = c("aut", "cre"),
+           email = "dewey@fishandwhistle.net",
+           comment = c(ORCID = "0000-0002-9415-4582"))
+Description: Reads shapefiles.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    wk
+LinkingTo:
+    wk
