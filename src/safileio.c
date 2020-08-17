@@ -173,10 +173,20 @@ int SADRemove( const char *filename )
 /*                              SADError()                              */
 /************************************************************************/
 
+// DD addition: provide a buffer in which the last error message can be stored
+char SALastError[1024];
+
 void SADError( const char *message )
 
 {
-    REprintf("%s\n", message );
+    unsigned long messageChars = strlen(message);
+    if (messageChars >= (1024 - 1)) {
+        memcpy(SALastError, message, 1024 - 1);
+        SALastError[1024 - 1] = '\0';
+    } else {
+        memcpy(SALastError, message, messageChars);
+        SALastError[messageChars] = '\0';
+    }
 }
 
 /************************************************************************/

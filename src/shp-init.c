@@ -1,17 +1,24 @@
 
+#include <memory.h>
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
 
+extern char SALastError[1024];
 SEXP shp_c_shapelib_version();
+SEXP shp_c_meta(SEXP path);
 
 static const R_CallMethodDef CallEntries[] = {
   {"shp_c_shapelib_version", (DL_FUNC) &shp_c_shapelib_version, 0},
+  {"shp_c_meta", (DL_FUNC) &shp_c_meta, 1},
   {NULL, NULL, 0}
 };
 
 void R_init_shp(DllInfo *dll) {
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
+
+  // initialize the last error message
+  memset(SALastError, 0, 1024);
 }
 
 SEXP shp_c_shapelib_version() {

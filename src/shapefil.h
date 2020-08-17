@@ -111,8 +111,8 @@
  *
  * Revision 1.41  2007/12/15 20:25:32  bram
  * dbfopen.c now reads the Code Page information from the DBF file, and exports
- * this information as a string through the DBFGetCodePage function.  This is 
- * either the number from the LDID header field ("LDID/<number>") or as the 
+ * this information as a string through the DBFGetCodePage function.  This is
+ * either the number from the LDID header field ("LDID/<number>") or as the
  * content of an accompanying .CPG file.  When creating a DBF file, the code can
  * be set using DBFCreateEx.
  *
@@ -285,6 +285,9 @@ typedef int *SAFile;
 #ifndef SAOffset
 typedef unsigned long SAOffset;
 #endif
+
+// DD addition: provide a buffer in which the last error message can be stored
+extern char SALastError[1024];
 
 typedef struct {
     SAFile     (*FOpen) ( const char *filename, const char *access);
