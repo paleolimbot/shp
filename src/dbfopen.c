@@ -1528,8 +1528,10 @@ static int DBFWriteAttribute(DBFHandle psDBF, int hEntity, int iField,
             szSField[psDBF->panFieldSize[iField]] = '\0';
             nRetResult = FALSE;
         }
-        strncpy(REINTERPRET_CAST(char *, pabyRec+psDBF->panFieldOffset[iField]),
-            szSField, strlen(szSField) );
+        // DD addition: strncpy raises a warning on gcc8 regarding string truncation
+        // that is handled in the code directly above. Changed to memcpy.
+        memcpy(REINTERPRET_CAST(char *, pabyRec+psDBF->panFieldOffset[iField]),
+            szSField, strlen(szSField) + 1 );
         break;
       }
 
@@ -2105,7 +2107,7 @@ DBFReorderFields( DBFHandle psDBF, int* panMap )
     panFieldSizeNew = STATIC_CAST(int *, calloc(sizeof(int),  psDBF->nFields));
     panFieldDecimalsNew = STATIC_CAST(int *, calloc(sizeof(int), psDBF->nFields));
     pachFieldTypeNew = STATIC_CAST(char *, calloc(sizeof(char), psDBF->nFields));
-    pszHeaderNew = STATIC_CAST(char*, malloc(sizeof(char) * XBASE_FLDHDR_SZ * 
+    pszHeaderNew = STATIC_CAST(char*, malloc(sizeof(char) * XBASE_FLDHDR_SZ *
                                   psDBF->nFields));
 
     /* shuffle fields definitions */
