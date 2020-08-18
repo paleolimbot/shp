@@ -71,6 +71,10 @@ SEXP shp_c_geometry_meta(SEXP path, SEXP indices) {
     SHP_ERROR("%s", "SHPOpen: ");
   }
 
+  // fast read mode skips a few steps that aren't needed
+  // to extract number of parts, number of vertices, and
+  // bounds for each feature
+  SHPSetFastModeReadObject(hSHP, 1);
   int nFeatures = hSHP->nRecords;
 
   SHPObject* obj;
