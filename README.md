@@ -7,6 +7,8 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![R build
+status](https://github.com/paleolimbot/shp/workflows/R-CMD-check/badge.svg)](https://github.com/paleolimbot/shp/actions)
 <!-- badges: end -->
 
 The goal of shp is to provide low-level access to ESRI shapefile
