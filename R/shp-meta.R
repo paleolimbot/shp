@@ -46,7 +46,7 @@ shp_file_meta <- function(path) {
 #' @rdname shp_file_meta
 #' @export
 shp_geometry_meta <- function(path, indices = NULL) {
-  path <- as.character(path)
+  path <- path.expand(path)
   stopifnot(length(path) == 1)
 
   if (is.null(indices)) {
