@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -91,7 +91,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/paleolimbot/shp/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -117,9 +117,9 @@
     <p>Read shapefile meta information</p>
     </div>
 
-    <pre class="usage"><span class='fu'>shp_file_meta</span>(<span class='no'>path</span>)
+    <pre class="usage"><span class='fu'>shp_file_meta</span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span>
 
-<span class='fu'>shp_geometry_meta</span>(<span class='no'>path</span>, <span class='kw'>indices</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+<span class='fu'>shp_geometry_meta</span><span class='op'>(</span><span class='va'>path</span>, indices <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,7 +140,8 @@ indices of the desired features.</p></td>
     <p>A <code><a href='https://rdrr.io/r/base/list.html'>list()</a></code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>shp_file_meta</span>(<span class='fu'><a href='shp_example.html'>shp_example</a></span>(<span class='st'>"mexico/cities.shp"</span>))</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 1 x 11</span><span>
+    <pre class="examples"><div class='input'><span class='fu'>shp_file_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.shp"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 1 x 11</span><span>
 #&gt;   path       shp_type n_features  xmin  ymin  zmin  mmin  xmax  ymax  zmax  mmax
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span> /Users/ru… point            36 -</span><span style='color: #BB0000;'>115.</span><span>  16.6     0     0 -</span><span style='color: #BB0000;'>88.3</span><span>  32.6     0     0</div><div class='input'>
@@ -160,7 +161,7 @@ indices of the desired features.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
