@@ -17,3 +17,6 @@ Suggests:
     testthat
 URL: https://github.com/paleolimbot/shp
 BugReports: https://github.com/paleolimbot/shp/issues
+LinkingTo: 
+    cpp11
+SystemRequirements: C++11
