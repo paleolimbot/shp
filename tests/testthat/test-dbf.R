@@ -10,8 +10,10 @@ test_that("read_dbf() works", {
   dbf_chr <- read_dbf(dbf, "c")
   dbf_auto <- read_dbf(dbf, "")
   expect_is(dbf_auto$POPULATION, "numeric")
-  # works because precision == 0 for this field
   expect_identical(as.numeric(dbf_chr$POPULATION), dbf_auto$POPULATION)
+
+  # only 'F' field in the examples
+  expect_is(read_dbf(shp_example("pline.dbf"))$LENGTH, "numeric")
 
   expect_error(read_dbf(dbf, "cc"), "Can't use")
   expect_error(read_dbf(dbf, NA), "Expected string vector")

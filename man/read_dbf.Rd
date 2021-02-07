@@ -23,8 +23,7 @@ A data.frame
 Read .dbf files
 }
 \examples{
-dbf <- system.file("shp/mexico/cities.dbf", package = "shp")
-read_dbf(dbf)
-read_dbf_meta(dbf)
+read_dbf(shp_example("mexico/cities.dbf"))
+read_dbf_meta(shp_example("mexico/cities.dbf"))
 
 }

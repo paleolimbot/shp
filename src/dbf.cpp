@@ -6,6 +6,24 @@
 using namespace cpp11;
 namespace writable = cpp11::writable;
 
+// The DBF file format is, in a nutshell, some header information, some field
+// information, followed by the record values. Enough information is available from
+// the header to make random access fast. The implementation in dbfopen.c
+// is written such that iterating over records then fields minimizes IO.
+// The field types 'N' (numeric) and 'C' (character) are the most common 
+// (GDAL doeesn't appear to write logicals as 'L' by default), but
+// 'F' (float), 'I' (integer), 'D' (date) can be in shapfiles found in
+// the wild. All of these values are stored as serialized character
+// sequences that don't need any information about the width or precision
+// to be parsed. The exception is possibly 'L', but I don't have any files
+// that use this type on which to test (according to the dBase spec, this is
+// 0x00 for False and 0x01 for True).
+//
+// This file is contains (1) a small wrapper around DBFOpen() and DBFClose()
+// to manage the lifecycle of the underlying C struct, (2) a set of 
+// readr-style "collectors" that assign a row/column index to an R vector,
+// and (3) exported functions used by read_dbf() and read_dbf_meta() in R.
+
 typedef struct {
     char name[12];
     char type;
@@ -79,12 +97,32 @@ private:
     }
 };
 
+class Problems {
+public:
+    void add_problem(int row, int col, const char* expected, const char* actual) {
+        this->row.push_back(row);
+        this->col.push_back(col);
+        this->expected.push_back(expected);
+        this->actual.push_back(actual);
+    }
+
+    list result() {
+        writable::list result = {row, col, expected, actual};
+        return result;
+    }
+
+private:
+    writable::integers row;
+    writable::integers col;
+    writable::strings expected;
+    writable::strings actual;
+};
 
 class Collector {
 public:
     virtual ~Collector() {}
     virtual sexp result() { return R_NilValue; }
-    virtual void put(DBFFile& dbf, int row_index, int field_index) {}
+    virtual void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {}
 };
 
 template <class vector_t>
@@ -100,7 +138,7 @@ protected:
 class StringsCollector: public VectorCollector<writable::strings> {
 public:
     StringsCollector(int size): VectorCollector<writable::strings>(size) {}
-    void put(DBFFile& dbf, int row_index, int field_index) {
+    void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_STRING;
         } else{
@@ -112,7 +150,7 @@ public:
 class IntegersCollector: public VectorCollector<writable::integers> {
 public:
     IntegersCollector(int size): VectorCollector<writable::integers>(size) {}
-    void put(DBFFile& dbf, int row_index, int field_index) {
+    void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_INTEGER;
         } else{
@@ -124,7 +162,7 @@ public:
 class DoublesCollector: public VectorCollector<writable::doubles> {
 public:
     DoublesCollector(int size): VectorCollector<writable::doubles>(size) {}
-    void put(DBFFile& dbf, int row_index, int field_index) {
+    void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_REAL;
         } else{
@@ -136,7 +174,7 @@ public:
 class LogicalsCollector: public VectorCollector<writable::logicals> {
 public:
     LogicalsCollector(int size): VectorCollector<writable::logicals>(size) {}
-    void put(DBFFile& dbf, int row_index, int field_index) {
+    void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_LOGICAL;
         } else{
@@ -162,6 +200,7 @@ std::unique_ptr<Collector> get_collector_user(char spec, int row_count) {
 std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
     switch(spec) {
     case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
+    case 'F':
     case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
     case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count));
     default: return std::unique_ptr<Collector>(new StringsCollector(row_count));
@@ -200,10 +239,13 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
     int field_count = dbf.field_count();
     int row_count = dbf.row_count();
 
+    // Iterate over columns to get type information. `col_spec` here
+    // can be "" (use provider types), a readr-style abbreviation with
+    // exactly one character or one character per column (e.g., 
+    // "cd-" for char, double, skip).
     std::vector<std::unique_ptr<Collector>> collectors(field_count);
     writable::strings names(field_count);
 
-    // zero-length == guess
     if (col_spec.size() == 0) {
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
@@ -231,20 +273,28 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
         );
     }
 
-    // read values into collectors
+    // Use a Problems object to accumulate parse errors
+    Problems problems;
+
+    // Iterate over rows then columns and let the collectors handle conversion
+    // to R vector values.
     for (int row_index = 0; row_index < row_count; row_index++) {
         for (int field_index = 0; field_index < field_count; field_index++) {
-            collectors[field_index]->put(dbf, row_index, field_index);
+            collectors[field_index]->put(dbf, problems, row_index, field_index);
         }
     }
 
-    // assemble results as a list()
+    // Assemble results as a list(). Note that "skipped" columns will be R_NilValue
     writable::list result(field_count);
     for (int field_index = 0; field_index < field_count; field_index++) {
         result[field_index] = collectors[field_index]->result();
     }
 
+    // Need to keep the row count in case there were no columns or in case
+    // all columns were skipped. In this case, a data frame with the correct
+    // dimensions can be calculated.
     result.names() = names;
-    result.attr("row.names") = row_count;
+    result.attr("n_rows") = row_count;
+    result.attr("problems") = problems.result();
     return result;
 }
