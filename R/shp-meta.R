@@ -5,11 +5,12 @@
 #' @param indices A vector of positive integers giving the
 #'   indices of the desired features.
 #'
-#' @return A `list()`
+#' @return A [tibble::tibble()]
 #' @export
 #'
 #' @examples
 #' shp_file_meta(shp_example("mexico/cities.shp"))
+#' shp_geometry_meta(shp_example("mexico/cities.shp"))
 #'
 shp_file_meta <- function(path) {
   if (length(path) == 0) {

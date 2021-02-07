@@ -16,12 +16,13 @@ shp_geometry_meta(path, indices = NULL)
 indices of the desired features.}
 }
 \value{
-A \code{list()}
+A \code{\link[tibble:tibble]{tibble::tibble()}}
 }
 \description{
 Read shapefile meta information
 }
 \examples{
 shp_file_meta(shp_example("mexico/cities.shp"))
+shp_geometry_meta(shp_example("mexico/cities.shp"))
 
 }
