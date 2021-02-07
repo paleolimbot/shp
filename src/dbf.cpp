@@ -1,6 +1,8 @@
 #include <cpp11.hpp>
 #include <sstream>
 #include <memory>
+#include <clocale>
+#include <cstdlib>
 #include <vector>
 #include "shapefil.h"
 using namespace cpp11;
@@ -21,8 +23,13 @@ namespace writable = cpp11::writable;
 //
 // This file is contains (1) a small wrapper around DBFOpen() and DBFClose()
 // to manage the lifecycle of the underlying C struct, (2) a set of 
-// readr-style "collectors" that assign a row/column index to an R vector,
+// readr-style "collectors" that assign a DBF value to an R vector,
 // and (3) exported functions used by read_dbf() and read_dbf_meta() in R.
+// The underlying shplib implementation uses atoi and atod to parse
+// strings into doubles/ints. These functions make it difficult to
+// detect parse errors. Here we use C++11's strtod and strtoi with
+// a thread localizer and report parse issues via a readr-style
+// 'problems' object.
 
 typedef struct {
     char name[12];
@@ -72,19 +79,6 @@ public:
         return DBFReadStringAttribute(hDBF, row_index, field_index);
     }
 
-    int value_integer(int row_index, int field_index) {
-        return DBFReadIntegerAttribute(hDBF, row_index, field_index);
-    }
-
-    double value_double(int row_index, int field_index) {
-        return DBFReadDoubleAttribute(hDBF, row_index, field_index);
-    }
-
-    bool value_logical(int row_index, int field_index) {
-        const char* result_ptr = DBFReadLogicalAttribute(hDBF, row_index, field_index);
-        return *result_ptr != 0;
-    }
-
 private:
     std::string filename;
     DBFHandle hDBF;
@@ -108,6 +102,7 @@ public:
 
     list result() {
         writable::list result = {row, col, expected, actual};
+        result.names() = {"row", "col", "expected", "actual"};
         return result;
     }
 
@@ -116,6 +111,23 @@ private:
     writable::integers col;
     writable::strings expected;
     writable::strings actual;
+};
+
+class ThreadLocalizer {
+public:
+    ThreadLocalizer() {
+        char* p = std::setlocale(LC_NUMERIC, nullptr);
+        if(p != nullptr) {
+        this->saved_locale = p;
+        }
+        std::setlocale(LC_NUMERIC, "C");
+    }
+
+    ~ThreadLocalizer() {
+        std::setlocale(LC_NUMERIC, saved_locale.c_str());
+    }
+private:
+    std::string saved_locale;
 };
 
 class Collector {
@@ -153,8 +165,19 @@ public:
     void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_INTEGER;
-        } else{
-            result_[i++] = dbf.value_integer(row_index, field_index);
+        } else {
+            const char* chars = dbf.value_string(row_index, field_index);
+            char* end_char;
+            long int value = std::strtol(chars, &end_char, 10);
+
+            if (end_char != (chars + strlen(chars))) {
+                problems.add_problem(row_index, field_index, "no trailing characters", chars);
+                result_[i++] = NA_INTEGER;
+            } else if ((value > INT_MAX) || (value < NA_INTEGER)) {
+                result_[i++] = NA_INTEGER;
+            } else {
+                result_[i++] = value;
+            }
         }
     }
 };
@@ -165,31 +188,67 @@ public:
     void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_REAL;
-        } else{
-            result_[i++] = dbf.value_double(row_index, field_index);
+        } else {
+            const char* chars = dbf.value_string(row_index, field_index);
+            char* end_char;
+            double value = std::strtod(chars, &end_char);
+
+            if (end_char != (chars + strlen(chars))) {
+                problems.add_problem(row_index, field_index, "no trailing characters", chars);
+                result_[i++] = NA_REAL;
+            } else {
+                result_[i++] = value;
+            }
         }
     }
 };
 
 class LogicalsCollector: public VectorCollector<writable::logicals> {
 public:
-    LogicalsCollector(int size): VectorCollector<writable::logicals>(size) {}
+    LogicalsCollector(int size, char dbf_type): 
+        VectorCollector<writable::logicals>(size), dbf_type(dbf_type) {}
+    
     void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_LOGICAL;
-        } else{
-            result_[i++] = dbf.value_logical(row_index, field_index);
+        } else if (dbf_type == 'L') {
+            const char* chars = dbf.value_string(row_index, field_index);
+            if (strlen(chars) > 1) {
+                result_[i++] = NA_LOGICAL;
+            } else if (chars[0] > 1) {
+                char hex_buf[4];
+                sprintf(hex_buf, "%#02x", chars[0]);
+                problems.add_problem(row_index, field_index, "0x00 or 0x01", hex_buf);
+                result_[i++] = NA_LOGICAL;
+            } else {
+                result_[i++] = chars[0];
+            }
+        } else {
+            std::string chars = dbf.value_string(row_index, field_index);
+            if (chars == "true" || chars == "TRUE" || 
+                chars == "T" || chars == "t" || chars == "1") {
+                result_[i++] = 1;
+            } else if (chars == "false" || chars == "FALSE" || 
+                chars == "F" || chars == "f" || chars == "0") {
+                result_[i++] = 0;
+            } else {
+                problems.add_problem(row_index, field_index, "true/TRUE/t/1/false/FALSE/f/0", chars.c_str());
+                result_[i++] = NA_LOGICAL;
+            }
         }
     }
+
+private:
+    char dbf_type;
 };
 
-std::unique_ptr<Collector> get_collector_user(char spec, int row_count) {
+std::unique_ptr<Collector> get_collector_user(char spec, int row_count, char dbf_type) {
     switch(spec) {
     case '-': return std::unique_ptr<Collector>(new Collector());
     case 'c': return std::unique_ptr<Collector>(new StringsCollector(row_count));
     case 'i': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
     case 'd': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
-    case 'l': return std::unique_ptr<Collector>(new LogicalsCollector(row_count));
+    case 'l': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, dbf_type));
     default:
         std::stringstream err;
         err << "Can't guess collector from specification '" << spec << "'";
@@ -202,7 +261,7 @@ std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
     case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
     case 'F':
     case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
-    case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count));
+    case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, 'L'));
     default: return std::unique_ptr<Collector>(new StringsCollector(row_count));
     }
 }
@@ -239,6 +298,10 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
     int field_count = dbf.field_count();
     int row_count = dbf.row_count();
 
+    // Make sure the C locale for parsing numerics is consistent.
+    // The deleter will restore the current C locale on exit.
+    ThreadLocalizer localizer;
+
     // Iterate over columns to get type information. `col_spec` here
     // can be "" (use provider types), a readr-style abbreviation with
     // exactly one character or one character per column (e.g., 
@@ -257,14 +320,22 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
             names[field_index] = field_info.name;
-            collectors[field_index] = get_collector_user(col_spec_chars[0], row_count);
+            collectors[field_index] = get_collector_user(
+                col_spec_chars[0], 
+                row_count,
+                field_info.type
+            );
         }
     } else if (col_spec.size() == field_count) {
         const char* col_spec_chars = col_spec.c_str();
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
             names[field_index] = field_info.name;
-            collectors[field_index] = get_collector_user(col_spec_chars[field_index], row_count);
+            collectors[field_index] = get_collector_user(
+                col_spec_chars[field_index], 
+                row_count, 
+                field_info.type
+            );
         }
     } else {
         stop(

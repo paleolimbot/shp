@@ -13,7 +13,7 @@
 #'
 shp_file_meta <- function(path) {
   if (length(path) == 0) {
-    new_data_frame(
+    tibble::new_tibble(
       list(
         path = character(0),
         shp_type = character(0),
@@ -39,7 +39,7 @@ shp_file_meta <- function(path) {
     # make shp_type human-readable
     meta$shp_type <- shp_types$shp_type[match(meta$shp_type, shp_types$shp_type_id)]
 
-    new_data_frame(c(list(path = path), meta, ranges), nrow = 1L)
+    tibble::new_tibble(c(list(path = path), meta, ranges), nrow = 1L)
   }
 }
 
@@ -55,7 +55,8 @@ shp_geometry_meta <- function(path, indices = NULL) {
     indices <- as.integer(indices)
   }
 
-  new_data_frame(.Call(shp_c_geometry_meta, path, indices))
+  result <- .Call(shp_c_geometry_meta, path, indices)
+  tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 
 shp_types <- list(
