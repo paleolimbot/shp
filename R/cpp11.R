@@ -4,6 +4,6 @@ cpp_read_dbf_meta <- function(filename) {
   .Call("_shp_cpp_read_dbf_meta", filename, PACKAGE = "shp")
 }
 
-cpp_read_dbf <- function(filename) {
-  invisible(.Call("_shp_cpp_read_dbf", filename, PACKAGE = "shp"))
+cpp_read_dbf <- function(filename, col_spec) {
+  .Call("_shp_cpp_read_dbf", filename, col_spec, PACKAGE = "shp")
 }

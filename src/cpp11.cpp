@@ -12,24 +12,23 @@ extern "C" SEXP _shp_cpp_read_dbf_meta(SEXP filename) {
   END_CPP11
 }
 // dbf.cpp
-void cpp_read_dbf(std::string filename);
-extern "C" SEXP _shp_cpp_read_dbf(SEXP filename) {
+list cpp_read_dbf(std::string filename, std::string col_spec);
+extern "C" SEXP _shp_cpp_read_dbf(SEXP filename, SEXP col_spec) {
   BEGIN_CPP11
-    cpp_read_dbf(cpp11::as_cpp<cpp11::decay_t<std::string>>(filename));
-    return R_NilValue;
+    return cpp11::as_sexp(cpp_read_dbf(cpp11::as_cpp<cpp11::decay_t<std::string>>(filename), cpp11::as_cpp<cpp11::decay_t<std::string>>(col_spec)));
   END_CPP11
 }
 
 extern "C" {
 /* .Call calls */
-extern SEXP _shp_cpp_read_dbf(SEXP);
+extern SEXP _shp_cpp_read_dbf(SEXP, SEXP);
 extern SEXP _shp_cpp_read_dbf_meta(SEXP);
 extern SEXP shp_c_file_meta(SEXP);
 extern SEXP shp_c_geometry_meta(SEXP, SEXP);
 extern SEXP shp_c_shapelib_version();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_shp_cpp_read_dbf",      (DL_FUNC) &_shp_cpp_read_dbf,      1},
+    {"_shp_cpp_read_dbf",      (DL_FUNC) &_shp_cpp_read_dbf,      2},
     {"_shp_cpp_read_dbf_meta", (DL_FUNC) &_shp_cpp_read_dbf_meta, 1},
     {"shp_c_file_meta",        (DL_FUNC) &shp_c_file_meta,        1},
     {"shp_c_geometry_meta",    (DL_FUNC) &shp_c_geometry_meta,    2},
