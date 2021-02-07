@@ -1,6 +1,6 @@
 
 test_that("read_dbf() works", {
-  dbf <- system.file("shp/mexico/cities.dbf", package = "shp")
+  dbf <- shp_example("mexico/cities.dbf")
   expect_true(all(vapply(read_dbf(dbf, "c"), is.character, logical(1))))
   expect_true(all(vapply(read_dbf(dbf, "cccc"), is.character, logical(1))))
 
@@ -8,7 +8,7 @@ test_that("read_dbf() works", {
   expect_equal(nrow(read_dbf(dbf, col_spec = "-")), 36)
 
   dbf_chr <- read_dbf(dbf, "c")
-  dbf_auto <- read_dbf(dbf, "")
+  dbf_auto <- read_dbf(dbf)
   expect_is(dbf_auto$POPULATION, "numeric")
   expect_identical(as.numeric(dbf_chr$POPULATION), dbf_auto$POPULATION)
 
@@ -18,6 +18,14 @@ test_that("read_dbf() works", {
   expect_error(read_dbf(dbf, "cc"), "Can't use")
   expect_error(read_dbf(dbf, NA), "Expected string vector")
   expect_error(read_dbf(dbf, c("c", "c")), "Expected string vector")
+})
+
+test_that("read_dbf() reports parse errors", {
+  expect_warning(
+    read_dbf(shp_example("csah.dbf"), col_spec = "????????l"),
+    "Found 58 parse problems"
+  )
+  expect_silent(read_dbf(shp_example("csah.dbf"), col_spec = "?") )
 })
 
 test_that("read_dbf() runs for all example dbf files", {

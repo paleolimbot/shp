@@ -242,8 +242,19 @@ private:
     char dbf_type;
 };
 
+std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
+    switch(spec) {
+    case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
+    case 'F':
+    case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
+    case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, 'L'));
+    default: return std::unique_ptr<Collector>(new StringsCollector(row_count));
+    }
+}
+
 std::unique_ptr<Collector> get_collector_user(char spec, int row_count, char dbf_type) {
     switch(spec) {
+    case '?': return get_collector_auto(dbf_type, row_count);
     case '-': return std::unique_ptr<Collector>(new Collector());
     case 'c': return std::unique_ptr<Collector>(new StringsCollector(row_count));
     case 'i': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
@@ -253,16 +264,6 @@ std::unique_ptr<Collector> get_collector_user(char spec, int row_count, char dbf
         std::stringstream err;
         err << "Can't guess collector from specification '" << spec << "'";
         stop(err.str());
-    }
-}
-
-std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
-    switch(spec) {
-    case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
-    case 'F':
-    case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
-    case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, 'L'));
-    default: return std::unique_ptr<Collector>(new StringsCollector(row_count));
     }
 }
 
@@ -309,13 +310,7 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
     std::vector<std::unique_ptr<Collector>> collectors(field_count);
     writable::strings names(field_count);
 
-    if (col_spec.size() == 0) {
-        for (int field_index = 0; field_index < field_count; field_index++) {
-            dbf_field_info_t field_info = dbf.field_info(field_index);
-            names[field_index] = field_info.name;
-            collectors[field_index] = get_collector_auto(field_info.type, row_count);
-        }
-    } else if (col_spec.size() == 1) {
+    if (col_spec.size() == 1) {
         const char* col_spec_chars = col_spec.c_str();
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
