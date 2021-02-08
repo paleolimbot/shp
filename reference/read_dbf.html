@@ -117,7 +117,7 @@
     <p>Read .dbf files</p>
     </div>
 
-    <pre class="usage"><span class='fu'>read_dbf</span><span class='op'>(</span><span class='va'>path</span>, col_spec <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>read_dbf</span><span class='op'>(</span><span class='va'>path</span>, col_spec <span class='op'>=</span> <span class='st'>"?"</span>, encoding <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
 
 <span class='fu'>read_dbf_meta</span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span></pre>
 
@@ -134,6 +134,11 @@
 one character for each column. Use "c" to return the
 character representation.</p></td>
     </tr>
+    <tr>
+      <th>encoding</th>
+      <td><p>Override the automatically guessed
+encoding.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -141,51 +146,29 @@ character representation.</p></td>
     <p>A data.frame</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>dbf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"shp/mexico/cities.dbf"</span>, package <span class='op'>=</span> <span class='st'>"shp"</span><span class='op'>)</span>
-<span class='fu'>read_dbf</span><span class='op'>(</span><span class='va'>dbf</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                  NAME CAPITAL            STATE_NAME POPULATION
-#&gt; 1           Monterrey       Y            Nuevo Leon    2015000
-#&gt; 2            Mazatlan       N               Sinaloa     199830
-#&gt; 3         Guadalajara       Y               Jalisco    2325000
-#&gt; 4             Tampico       N            Tamaulipas     435000
-#&gt; 5         Mexico City       C      Distrito Federal   14100000
-#&gt; 6  Puebla de Zaragoza       Y                Puebla    1055000
-#&gt; 7            Veracruz       N        Veracruz-Llave     385000
-#&gt; 8              Oaxaca       Y                Oaxaca     154223
-#&gt; 9              Merida       Y               Yucatan     400142
-#&gt; 10           Mexicali       Y Baja California Norte     365000
-#&gt; 11     Aguascalientes       Y        Aguascalientes     293152
-#&gt; 12           Campeche       Y              Campeche     128434
-#&gt; 13             La Paz       Y   Baja California Sur      91453
-#&gt; 14   Tuxtla Gutierrez       Y               Chiapas     131096
-#&gt; 15          Chihuahua       Y             Chihuahua     385603
-#&gt; 16           Saltillo       Y  Coahuila De Zaragoza     284937
-#&gt; 17             Colima       Y                Colima      86044
-#&gt; 18            Durango       Y               Durango     257915
-#&gt; 19         Guanajuato       Y            Guanajuato      48981
-#&gt; 20       Chilpancingo       Y              Guerrero      67498
-#&gt; 21            Pachuca       Y               Hidalgo     110351
-#&gt; 22            Morelia       Y   Michoacan de Ocampo     297544
-#&gt; 23             Toluca       Y                Mexico     199778
-#&gt; 24         Cuernavaca       Y               Morelos     192770
-#&gt; 25              Tepic       Y               Nayarit     145741
-#&gt; 26          Queretaro       Y  Queretaro de Arteaga     215976
-#&gt; 27           Chetumal       Y          Quintana Roo      56709
-#&gt; 28    San Luis Potosi       Y       San Luis Potosi     470000
-#&gt; 29           Culiacan       Y               Sinaloa     304826
-#&gt; 30         Hermosillo       Y                Sonora     297175
-#&gt; 31       Villahermosa       Y               Tabasco     158216
-#&gt; 32           Tlaxcala       Y              Tlaxcala      35384
-#&gt; 33             Jalapa       Y        Veracruz-Llave     204594
-#&gt; 34          Zacatecas       Y             Zacatecas      80088
-#&gt; 35    Ciudad Victoria       Y            Tamaulipas     140161
-#&gt; 36           Acapulco       N              Guerrero     301902</div><div class='input'><span class='fu'>read_dbf_meta</span><span class='op'>(</span><span class='va'>dbf</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   index       name type width precision
-#&gt; 1     1       NAME    C    51         0
-#&gt; 2     2    CAPITAL    C     1         0
-#&gt; 3     3 STATE_NAME    C    25         0
-#&gt; 4     4 POPULATION    N    11         0</div><div class='input'>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>read_dbf</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 36 x 4</span><span>
+#&gt;    NAME               CAPITAL STATE_NAME            POPULATION
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>              </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                      </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> Monterrey          Y       Nuevo Leon               2</span><span style='text-decoration: underline;'>015</span><span>000
+#&gt; </span><span style='color: #555555;'> 2</span><span> Mazatlan           N       Sinaloa                   </span><span style='text-decoration: underline;'>199</span><span>830
+#&gt; </span><span style='color: #555555;'> 3</span><span> Guadalajara        Y       Jalisco                  2</span><span style='text-decoration: underline;'>325</span><span>000
+#&gt; </span><span style='color: #555555;'> 4</span><span> Tampico            N       Tamaulipas                </span><span style='text-decoration: underline;'>435</span><span>000
+#&gt; </span><span style='color: #555555;'> 5</span><span> Mexico City        C       Distrito Federal        14</span><span style='text-decoration: underline;'>100</span><span>000
+#&gt; </span><span style='color: #555555;'> 6</span><span> Puebla de Zaragoza Y       Puebla                   1</span><span style='text-decoration: underline;'>055</span><span>000
+#&gt; </span><span style='color: #555555;'> 7</span><span> Veracruz           N       Veracruz-Llave            </span><span style='text-decoration: underline;'>385</span><span>000
+#&gt; </span><span style='color: #555555;'> 8</span><span> Oaxaca             Y       Oaxaca                    </span><span style='text-decoration: underline;'>154</span><span>223
+#&gt; </span><span style='color: #555555;'> 9</span><span> Merida             Y       Yucatan                   </span><span style='text-decoration: underline;'>400</span><span>142
+#&gt; </span><span style='color: #555555;'>10</span><span> Mexicali           Y       Baja California Norte     </span><span style='text-decoration: underline;'>365</span><span>000
+#&gt; </span><span style='color: #555555;'># … with 26 more rows</span><span></div><div class='input'><span class='fu'>read_dbf_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 4 x 5</span><span>
+#&gt;   index name       type  width precision
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span>     1 NAME       C        51         0
+#&gt; </span><span style='color: #555555;'>2</span><span>     2 CAPITAL    C         1         0
+#&gt; </span><span style='color: #555555;'>3</span><span>     3 STATE_NAME C        25         0
+#&gt; </span><span style='color: #555555;'>4</span><span>     4 POPULATION N        11         0</div><div class='input'>
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
