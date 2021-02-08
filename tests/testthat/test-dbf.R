@@ -28,6 +28,10 @@ test_that("read_dbf() reports parse errors", {
   expect_silent(read_dbf(shp_example("csah.dbf"), col_spec = "?") )
 })
 
+test_that("read_dbf() can accept a file encoding", {
+  read_dbf(shp_example("eccities.shp"))
+})
+
 test_that("read_dbf() runs for all example dbf files", {
   all_dbf <- list.files(
     system.file("shp", package = "shp"), ".dbf",

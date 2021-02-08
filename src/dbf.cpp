@@ -5,6 +5,12 @@
 #include <cstdlib>
 #include <vector>
 #include "shapefil.h"
+
+// unclear where inconv_t is defined, but an invalid
+// conversion is defined as (iconv_t) -1
+#include <R_ext/Riconv.h>
+typedef void* iconv_t;
+
 using namespace cpp11;
 namespace writable = cpp11::writable;
 
@@ -31,6 +37,197 @@ namespace writable = cpp11::writable;
 // a thread localizer and report parse issues via a readr-style
 // 'problems' object.
 
+// Wrapper around R's iconv
+// https://github.com/wch/r-source/blob/trunk/src/main/sysutils.c#L582-L778
+class IconvUTF8 {
+public:
+    IconvUTF8(const char* from): iconv_obj(nullptr), buffer(nullptr), buffer_size(2048) {
+        iconv_obj = Riconv_open("UTF-8", from);
+        if(iconv_obj == (iconv_t)(-1)) {
+            stop("Can't convert from encoding '%s' to encoding '%s'", from, "UTF-8");
+        }
+
+        // share an output buffer for all conversions, reallocing as necessary
+        buffer = (char*) malloc(buffer_size * sizeof(char));
+        if (buffer == nullptr) {
+            stop("Failed to allocate IconvUTF8 output buffer");
+        }
+    }
+
+    std::string iconv(const char* bytes) {
+        size_t in_bytes_left, out_bytes_left, result;
+        while (true) {
+            result = Riconv(iconv_obj, &bytes, &in_bytes_left, &buffer, &out_bytes_left);
+            if (out_bytes_left == 0) {
+                ensure_buffer_has_size(buffer_size * 2);
+            } else {
+                break;
+            }
+        }
+
+        if ((result == ((size_t) -1)) || (in_bytes_left != 0)) {
+            stop("Conversion to UTF-8 failed");
+        }
+
+        return std::string();
+    }
+
+    void ensure_buffer_has_size(size_t size) {
+        if (size >= buffer_size) {
+            buffer = (char*) realloc(buffer, size);
+            if (buffer == nullptr) {
+                stop("Failed to reallocate IconvUTF8 output buffer");
+            } else {
+                buffer_size = size;
+            }
+        }
+    }
+
+    ~IconvUTF8() {
+        if ((iconv_obj != nullptr) && (iconv_obj != (iconv_t)(-1))) {
+            Riconv_close(iconv_obj);
+        }
+
+        if (buffer != nullptr) {
+            free(buffer);
+        }
+    }
+private:
+    void* iconv_obj;
+    char* buffer;
+    size_t buffer_size;
+};
+
+// .dbf file encodings are found in the .cpg companion file or encoded in the
+// .dbf file header. The value returned by DBFGetCodePage() will be either the
+// contents of the .cpg file OR an "ldid" (possiby language driver identifier?)
+// integer in the form LDID/([0-9]+), where [0-9]+ is an integer that can be
+// transformed into the contents of a .cpg file based on this table:
+// http://www.autopark.ru/ASBProgrammerGuide/DBFSTRUC.HTM
+// https://github.com/OSGeo/gdal/blob/master/gdal/ogr/ogrsf_frmts/shape/ogrshapelayer.cpp
+// For example, if DBFGetCodePage() returns 'LDID/19', this is equivalent to
+// a .cpg file whose contents is 'CP932'. For details on the .cpg file value,
+// see https://support.esri.com/en/technical-article/000013192
+class DBFEncodings {
+public:
+    static int dbf_encoding_cpg_from_ldid(int ldid) {
+        switch (ldid) {
+        case 1: return 437;
+        case 2: return 850;
+        case 3: return 1252;
+        case 4: return 10000;
+        case 8: return 865;
+        case 10: return 850;
+        case 11: return 437;
+        case 13: return 437;
+        case 14: return 850;
+        case 15: return 437;
+        case 16: return 850;
+        case 17: return 437;
+        case 18: return 850;
+        case 19: return 932;
+        case 20: return 850;
+        case 21: return 437;
+        case 22: return 850;
+        case 23: return 865;
+        case 24: return 437;
+        case 25: return 437;
+        case 26: return 850;
+        case 27: return 437;
+        case 28: return 863;
+        case 29: return 850;
+        case 31: return 852;
+        case 34: return 852;
+        case 35: return 852;
+        case 36: return 860;
+        case 37: return 850;
+        case 38: return 866;
+        case 55: return 850;
+        case 64: return 852;
+        case 77: return 936;
+        case 78: return 949;
+        case 79: return 950;
+        case 80: return 874;
+        case 87: return DBF_ENCODING_ENC_ISO8859_1;
+        case 88: return 1252;
+        case 89: return 1252;
+        case 100: return 852;
+        case 101: return 866;
+        case 102: return 865;
+        case 103: return 861;
+        case 104: return 895;
+        case 105: return 620;
+        case 106: return 737;
+        case 107: return 857;
+        case 108: return 863;
+        case 120: return 950;
+        case 121: return 949;
+        case 122: return 936;
+        case 123: return 932;
+        case 124: return 874;
+        case 134: return 737;
+        case 135: return 852;
+        case 136: return 857;
+        case 150: return 10007;
+        case 151: return 10029;
+        case 200: return 1250;
+        case 201: return 1251;
+        case 202: return 1254;
+        case 203: return 1253;
+        case 204: return 1257;
+        default: return -1;
+        }
+    }
+
+    // `value` here is the value produced by DBFGetCodePage()
+    static std::string dbf_encoding(const char* c_str) {
+        if ((c_str == nullptr) || (strlen(c_str) == 0)) {
+            return "";
+        }
+        
+        std::string value(c_str);
+        bool is_ldid = (value.size() > 6) && (value.substr(0, 5) == "LDID/");
+        bool is_cp = (value.size() > 3) && (value.substr(0, 2) == "CP");
+
+        int cpg_code = -1;
+        if (is_ldid) {
+            std::string ldid_str = value.substr(5, value.size() - 5);
+            int ldid_int = atoi(ldid_str.c_str());
+            cpg_code = dbf_encoding_cpg_from_ldid(ldid_int);
+        } else if (is_cp) {
+            cpg_code = atoi(value.substr(2, value.size() - 2).c_str());
+        }
+
+        // if atoi fails, cpg_code will be 0
+        if (cpg_code == DBF_ENCODING_ENC_ISO8859_1) {
+            return "ISO-8859-1";
+        } else if ((cpg_code >= 437 && cpg_code <= 950) || (cpg_code >= 1250 && cpg_code <= 1258)) {
+            std::stringstream out;
+            out << "CP" << cpg_code;
+            return out.str();
+        } else if ((value.size() > 5) && (value.substr(0, 5) == "8859-")) {
+            std::stringstream out;
+            out << "ISO-8859-" << value.substr(5, value.size() - 5);
+            return out.str();
+        } else if ((value.size() > 4) && (value.substr(0, 4) == "8859")) {
+            std::stringstream out;
+            out << "ISO-8859-" << value.substr(4, value.size() - 4);
+            return out.str();
+        } else if((value.size() >= 5) && (value.substr(0, 5) == "UTF-8")) {
+            return "UTF-8";
+        } else if((value.size() >= 4) && (value.substr(0, 4) == "UTF8")) {
+            return "UTF-8";
+        } else if((value.size() >= 9) && (value.substr(0, 9) == "ANSI 1251")) {
+            return "CP1251";
+        } else {
+            return value;
+        }
+    }
+
+private:
+    const static int DBF_ENCODING_ENC_ISO8859_1 = 88591;
+};
+
 typedef struct {
     char name[12];
     char type;
@@ -41,13 +238,16 @@ typedef struct {
 
 class DBFFile {
 public:
-    DBFFile(std::string filename): filename(filename), hDBF(nullptr) {
+    DBFFile(std::string filename): filename_(filename), hDBF(nullptr) {
         hDBF = DBFOpen(filename.c_str(), "rb");
         if (hDBF == nullptr) {
             std::stringstream err;
             err << "Failed to open DBF file '" << filename << "'";
             stop(err.str());
         }
+
+        const char* code_page = DBFGetCodePage(hDBF);
+        this->encoding_ = DBFEncodings::dbf_encoding(code_page);
     }
 
     ~DBFFile() {
@@ -64,11 +264,19 @@ public:
         return DBFGetRecordCount(hDBF);
     }
 
+    std::string filename() {
+        return filename_;
+    }
+
     dbf_field_info_t field_info(int field_index) {
         dbf_field_info_t result;
         result.type = DBFGetNativeFieldType(hDBF, field_index);
         result.dbf_type = DBFGetFieldInfo(hDBF, field_index, result.name, &result.width, &result.precision);
         return result;
+    }
+
+    std::string encoding() {
+        return this->encoding_;
     }
 
     bool value_is_null(int row_index, int field_index) {
@@ -80,15 +288,9 @@ public:
     }
 
 private:
-    std::string filename;
+    std::string filename_;
+    std::string encoding_;
     DBFHandle hDBF;
-
-    [[ noreturn ]] void throw_failed_read(int row_index, int field_index, const char* type) {
-        std::stringstream err;
-        err << "Failed to read" << type << " (" << 
-            row_index << ", " << field_index << ") from '" << filename << "'";
-        stop(err.str());
-    }
 };
 
 class Problems {
@@ -216,7 +418,7 @@ public:
             if (strlen(chars) > 1) {
                 result_[i++] = NA_LOGICAL;
             } else if (chars[0] > 1) {
-                char hex_buf[4];
+                char hex_buf[5];
                 sprintf(hex_buf, "%#02x", chars[0]);
                 problems.add_problem(row_index, field_index, "0x00 or 0x01", hex_buf);
                 result_[i++] = NA_LOGICAL;
@@ -298,6 +500,8 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
     DBFFile dbf(filename);
     int field_count = dbf.field_count();
     int row_count = dbf.row_count();
+
+    Rprintf("encoding val: '%s'\n", dbf.encoding().c_str());
 
     // Make sure the C locale for parsing numerics is consistent.
     // The deleter will restore the current C locale on exit.
