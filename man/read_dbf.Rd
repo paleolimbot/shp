@@ -5,7 +5,7 @@
 \alias{read_dbf_meta}
 \title{Read .dbf files}
 \usage{
-read_dbf(path, col_spec = "")
+read_dbf(path, col_spec = "?", encoding = "")
 
 read_dbf_meta(path)
 }
@@ -15,6 +15,9 @@ read_dbf_meta(path)
 \item{col_spec}{A character vector of length one with
 one character for each column. Use "c" to return the
 character representation.}
+
+\item{encoding}{Override the automatically guessed
+encoding.}
 }
 \value{
 A data.frame

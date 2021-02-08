@@ -29,7 +29,20 @@ test_that("read_dbf() reports parse errors", {
 })
 
 test_that("read_dbf() can accept a file encoding", {
-  read_dbf(shp_example("eccities.shp"))
+  expect_identical(
+    read_dbf(shp_example("eccities.shp"))$label[3],
+    "Québec"
+  )
+
+  expect_identical(
+    read_dbf(shp_example("eccities.shp"), encoding = "UTF-8")$label[3],
+    "Québec"
+  )
+
+  expect_identical(
+    read_dbf(shp_example("eccities.shp"), encoding = "windows-1252")$label[3],
+    "QuÃ©bec"
+  )
 })
 
 test_that("read_dbf() runs for all example dbf files", {

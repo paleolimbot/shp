@@ -55,21 +55,19 @@ public:
     }
 
     std::string iconv(const char* bytes) {
-        size_t in_bytes_left, out_bytes_left, result;
-        while (true) {
-            result = Riconv(iconv_obj, &bytes, &in_bytes_left, &buffer, &out_bytes_left);
-            if (out_bytes_left == 0) {
-                ensure_buffer_has_size(buffer_size * 2);
-            } else {
-                break;
-            }
-        }
+        ensure_buffer_has_size(strlen(bytes) * 2);
+        size_t in_bytes_left = strlen(bytes);
+        size_t result = (size_t) -1;
+        size_t out_bytes_left = buffer_size;
+        char* ptr_out = buffer;
+        result = Riconv(iconv_obj, &bytes, &in_bytes_left, &ptr_out, &out_bytes_left);
 
         if ((result == ((size_t) -1)) || (in_bytes_left != 0)) {
             stop("Conversion to UTF-8 failed");
         }
 
-        return std::string();
+        std::string output(buffer, buffer_size - out_bytes_left);
+        return output;
     }
 
     void ensure_buffer_has_size(size_t size) {
@@ -238,7 +236,8 @@ typedef struct {
 
 class DBFFile {
 public:
-    DBFFile(std::string filename): filename_(filename), hDBF(nullptr) {
+    DBFFile(std::string filename, std::string encoding = ""): 
+        filename_(filename), encoding_(encoding), hDBF(nullptr) {
         hDBF = DBFOpen(filename.c_str(), "rb");
         if (hDBF == nullptr) {
             std::stringstream err;
@@ -246,8 +245,9 @@ public:
             stop(err.str());
         }
 
-        const char* code_page = DBFGetCodePage(hDBF);
-        this->encoding_ = DBFEncodings::dbf_encoding(code_page);
+        if (encoding_ == "") {
+            encoding_ = DBFEncodings::dbf_encoding(DBFGetCodePage(hDBF));
+        }
     }
 
     ~DBFFile() {
@@ -351,14 +351,20 @@ protected:
 
 class StringsCollector: public VectorCollector<writable::strings> {
 public:
-    StringsCollector(int size): VectorCollector<writable::strings>(size) {}
+    StringsCollector(int size, std::string encoding): 
+        VectorCollector<writable::strings>(size), iconv(encoding.c_str()) {}
+    
     void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_STRING;
-        } else{
-            result_[i++] = dbf.value_string(row_index, field_index);
+        } else {
+            const char* bytes = dbf.value_string(row_index, field_index);
+            result_[i++] = iconv.iconv(bytes);
         }
     }
+
+private:
+    IconvUTF8 iconv;
 };
 
 class IntegersCollector: public VectorCollector<writable::integers> {
@@ -444,30 +450,52 @@ private:
     char dbf_type;
 };
 
-std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
-    switch(spec) {
-    case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
-    case 'F':
-    case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
-    case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, 'L'));
-    default: return std::unique_ptr<Collector>(new StringsCollector(row_count));
-    }
-}
 
-std::unique_ptr<Collector> get_collector_user(char spec, int row_count, char dbf_type) {
-    switch(spec) {
-    case '?': return get_collector_auto(dbf_type, row_count);
-    case '-': return std::unique_ptr<Collector>(new Collector());
-    case 'c': return std::unique_ptr<Collector>(new StringsCollector(row_count));
-    case 'i': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
-    case 'd': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
-    case 'l': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, dbf_type));
-    default:
-        std::stringstream err;
-        err << "Can't guess collector from specification '" << spec << "'";
-        stop(err.str());
+class CollectorFactory {
+public:
+    CollectorFactory(DBFFile& dbf): dbf(dbf) {}
+
+    std::unique_ptr<Collector> get_collector_auto(char spec, int row_count) {
+        std::string encoding = dbf.encoding();
+        if (encoding == "") {
+            encoding = "UTF-8";
+        }
+
+        switch(spec) {
+        case 'I': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
+        case 'F':
+        case 'N': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
+        case 'L': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, 'L'));
+        default: 
+            return std::unique_ptr<Collector>(new StringsCollector(row_count, encoding));
+        }
     }
-}
+
+    std::unique_ptr<Collector> get_collector_user(char spec, int row_count, char dbf_type) {
+        std::string encoding = dbf.encoding();
+        if (encoding == "") {
+            encoding = "UTF-8";
+        }
+
+        switch(spec) {
+        case '?': return get_collector_auto(dbf_type, row_count);
+        case '-': return std::unique_ptr<Collector>(new Collector());
+        case 'c': return std::unique_ptr<Collector>(new StringsCollector(row_count, encoding));
+        case 'i': return std::unique_ptr<Collector>(new IntegersCollector(row_count));
+        case 'd': return std::unique_ptr<Collector>(new DoublesCollector(row_count));
+        case 'l': return std::unique_ptr<Collector>(new LogicalsCollector(row_count, dbf_type));
+        default:
+            std::stringstream err;
+            err << "Can't guess collector from specification '" << spec << "'";
+            stop(err.str());
+        }
+    }
+
+private:
+    DBFFile& dbf;
+};
+
+
 
 [[cpp11::register]]
 list cpp_read_dbf_meta(std::string filename) {
@@ -496,12 +524,10 @@ list cpp_read_dbf_meta(std::string filename) {
 }
 
 [[cpp11::register]]
-list cpp_read_dbf(std::string filename, std::string col_spec) {
-    DBFFile dbf(filename);
+list cpp_read_dbf(std::string filename, std::string col_spec, std::string encoding) {
+    DBFFile dbf(filename, encoding);
     int field_count = dbf.field_count();
     int row_count = dbf.row_count();
-
-    Rprintf("encoding val: '%s'\n", dbf.encoding().c_str());
 
     // Make sure the C locale for parsing numerics is consistent.
     // The deleter will restore the current C locale on exit.
@@ -511,6 +537,7 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
     // can be "" (use provider types), a readr-style abbreviation with
     // exactly one character or one character per column (e.g., 
     // "cd-" for char, double, skip).
+    CollectorFactory collector_factory(dbf);
     std::vector<std::unique_ptr<Collector>> collectors(field_count);
     writable::strings names(field_count);
 
@@ -519,7 +546,7 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
             names[field_index] = field_info.name;
-            collectors[field_index] = get_collector_user(
+            collectors[field_index] = collector_factory.get_collector_user(
                 col_spec_chars[0], 
                 row_count,
                 field_info.type
@@ -530,7 +557,7 @@ list cpp_read_dbf(std::string filename, std::string col_spec) {
         for (int field_index = 0; field_index < field_count; field_index++) {
             dbf_field_info_t field_info = dbf.field_info(field_index);
             names[field_index] = field_info.name;
-            collectors[field_index] = get_collector_user(
+            collectors[field_index] = collector_factory.get_collector_user(
                 col_spec_chars[field_index], 
                 row_count, 
                 field_info.type

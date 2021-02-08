@@ -5,6 +5,8 @@
 #' @param col_spec A character vector of length one with
 #'   one character for each column. Use "c" to return the
 #'   character representation.
+#' @param encoding Override the automatically guessed
+#'   encoding.
 #'
 #' @return A data.frame
 #' @export
@@ -13,8 +15,8 @@
 #' read_dbf(shp_example("mexico/cities.dbf"))
 #' read_dbf_meta(shp_example("mexico/cities.dbf"))
 #'
-read_dbf <- function(path, col_spec = "?") {
-  result <- cpp_read_dbf(path.expand(path), col_spec)
+read_dbf <- function(path, col_spec = "?", encoding = "") {
+  result <- cpp_read_dbf(path.expand(path), col_spec, encoding)
 
   df <- tibble::new_tibble(
     result[!vapply(result, is.null, logical(1))],
