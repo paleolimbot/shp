@@ -55,8 +55,8 @@ public:
     }
 
     std::string iconv(const char* bytes) {
-        ensure_buffer_has_size(strlen(bytes) * 2);
         size_t in_bytes_left = strlen(bytes);
+        ensure_buffer_has_size(in_bytes_left * 2);
         size_t result = (size_t) -1;
         size_t out_bytes_left = buffer_size;
         char* ptr_out = buffer;
@@ -498,11 +498,10 @@ private:
 
 
 [[cpp11::register]]
-list cpp_read_dbf_meta(std::string filename) {
+list cpp_read_dbf_colmeta(std::string filename) {
     DBFFile dbf(filename);
     int field_count = dbf.field_count();
 
-    writable::integers index(field_count);
     writable::strings name(field_count);
     writable::raws type(field_count);
     writable::integers width(field_count);
@@ -511,15 +510,14 @@ list cpp_read_dbf_meta(std::string filename) {
     dbf_field_info_t info;
     for (int field_index = 0; field_index < field_count; field_index++) {
         info = dbf.field_info(field_index);
-        index[field_index] = field_index + 1; // return R-based index
         name[field_index] = info.name;
         type[field_index] = info.type;
         width[field_index] = info.width;
         precision[field_index] = info.precision;
     }
 
-    writable::list result = {index, name, type, width, precision};
-    result.names() = {"index", "name", "type", "width", "precision"};
+    writable::list result = {name, type, width, precision};
+    result.names() = {"name", "type", "width", "precision"};
     return result;
 }
 
@@ -576,6 +574,10 @@ list cpp_read_dbf(std::string filename, std::string col_spec, std::string encodi
     // Iterate over rows then columns and let the collectors handle conversion
     // to R vector values.
     for (int row_index = 0; row_index < row_count; row_index++) {
+        if ((row_index + 1) % 1000 == 0) {
+            check_user_interrupt();
+        }
+
         for (int field_index = 0; field_index < field_count; field_index++) {
             collectors[field_index]->put(dbf, problems, row_index, field_index);
         }

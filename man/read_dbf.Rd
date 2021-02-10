@@ -2,31 +2,40 @@
 % Please edit documentation in R/dbf.R
 \name{read_dbf}
 \alias{read_dbf}
-\alias{read_dbf_meta}
+\alias{read_dbf_colmeta}
 \title{Read .dbf files}
 \usage{
 read_dbf(path, col_spec = "?", encoding = "")
 
-read_dbf_meta(path)
+read_dbf_colmeta(path)
 }
 \arguments{
 \item{path}{A filename of a .dbf file.}
 
 \item{col_spec}{A character vector of length one with
-one character for each column. Use "c" to return the
-character representation.}
+one character for each column or one character to be used
+for all columns. The following characters are supported
+(designed to align with \code{\link[readr:cols]{readr::cols()}}):
+\itemize{
+\item "?": Use DBF-specified field type
+\item "-": Skip column
+\item "c": Character
+\item "i": Parse integer
+\item "d": Parse double
+\item "l": Parse as logical
+}}
 
 \item{encoding}{Override the automatically guessed
 encoding.}
 }
 \value{
-A data.frame
+A \code{\link[tibble:tibble]{tibble::tibble()}}
 }
 \description{
 Read .dbf files
 }
 \examples{
 read_dbf(shp_example("mexico/cities.dbf"))
-read_dbf_meta(shp_example("mexico/cities.dbf"))
+read_dbf_colmeta(shp_example("mexico/cities.dbf"))
 
 }

@@ -57,7 +57,7 @@ test_that("read_dbf() runs for all example dbf files", {
   }
 })
 
-test_that("read_dbf_meta() runs for all example dbf files", {
+test_that("read_dbf_colmeta() runs for all example dbf files", {
   all_dbf <- list.files(
     system.file("shp", package = "shp"), ".dbf",
     recursive = TRUE,
@@ -65,6 +65,6 @@ test_that("read_dbf_meta() runs for all example dbf files", {
   )
 
   for (dbf in all_dbf) {
-    expect_is(read_dbf_meta(!! dbf), "data.frame")
+    expect_is(read_dbf_colmeta(!! dbf), "data.frame")
   }
 })

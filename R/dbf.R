@@ -3,17 +3,26 @@
 #'
 #' @param path A filename of a .dbf file.
 #' @param col_spec A character vector of length one with
-#'   one character for each column. Use "c" to return the
-#'   character representation.
+#'   one character for each column or one character to be used
+#'   for all columns. The following characters are supported
+#'   (designed to align with [readr::cols()]):
+#'
+#'   - "?": Use DBF-specified field type
+#'   - "-": Skip column
+#'   - "c": Character
+#'   - "i": Parse integer
+#'   - "d": Parse double
+#'   - "l": Parse as logical
+#'
 #' @param encoding Override the automatically guessed
 #'   encoding.
 #'
-#' @return A data.frame
+#' @return A [tibble::tibble()]
 #' @export
 #'
 #' @examples
 #' read_dbf(shp_example("mexico/cities.dbf"))
-#' read_dbf_meta(shp_example("mexico/cities.dbf"))
+#' read_dbf_colmeta(shp_example("mexico/cities.dbf"))
 #'
 read_dbf <- function(path, col_spec = "?", encoding = "") {
   result <- cpp_read_dbf(path.expand(path), col_spec, encoding)
@@ -35,8 +44,8 @@ read_dbf <- function(path, col_spec = "?", encoding = "") {
 
 #' @rdname read_dbf
 #' @export
-read_dbf_meta <- function(path) {
-  result <- cpp_read_dbf_meta(path.expand(path))
+read_dbf_colmeta <- function(path) {
+  result <- cpp_read_dbf_colmeta(path.expand(path))
   result$type <- rawToChar(result$type, multiple = TRUE)
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }
