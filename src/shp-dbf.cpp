@@ -351,20 +351,35 @@ protected:
 
 class StringsCollector: public VectorCollector<writable::strings> {
 public:
-    StringsCollector(int size, std::string encoding): 
-        VectorCollector<writable::strings>(size), iconv(encoding.c_str()) {}
+    StringsCollector(int size, const std::string& encoding): 
+        VectorCollector<writable::strings>(size), 
+        iconv(encoding.c_str()), 
+        encoding(encoding) {}
     
     void put(DBFFile& dbf, Problems& problems, int row_index, int field_index) {
         if (dbf.value_is_null(row_index, field_index)) {
             result_[i++] = NA_STRING;
         } else {
             const char* bytes = dbf.value_string(row_index, field_index);
-            result_[i++] = iconv.iconv(bytes);
+            try {
+                result_[i++] = iconv.iconv(bytes);
+            } catch(std::exception& error) {
+                result_[i++] = bytes;
+
+                std::stringstream expected;
+                expected << "A string with encoding '" << encoding << "'";
+                problems.add_problem(
+                    row_index, field_index, 
+                    expected.str().c_str(),
+                    bytes
+                );
+            }
         }
     }
 
 private:
     IconvUTF8 iconv;
+    const std::string& encoding;
 };
 
 class IntegersCollector: public VectorCollector<writable::integers> {
@@ -531,10 +546,7 @@ list cpp_read_dbf(std::string filename, std::string col_spec, std::string encodi
     // The deleter will restore the current C locale on exit.
     ThreadLocalizer localizer;
 
-    // Iterate over columns to get type information. `col_spec` here
-    // can be "" (use provider types), a readr-style abbreviation with
-    // exactly one character or one character per column (e.g., 
-    // "cd-" for char, double, skip).
+    // Iterate over columns to get names and type information.
     CollectorFactory collector_factory(dbf);
     std::vector<std::unique_ptr<Collector>> collectors(field_count);
     writable::strings names(field_count);
