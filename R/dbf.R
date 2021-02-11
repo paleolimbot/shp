@@ -1,7 +1,7 @@
 
 #' Read .dbf files
 #'
-#' @param path A filename of a .dbf file.
+#' @param file A filename of a .dbf file.
 #' @param col_spec A character vector of length one with
 #'   one character for each column or one character to be used
 #'   for all columns. The following characters are supported
@@ -24,8 +24,8 @@
 #' read_dbf(shp_example("mexico/cities.dbf"))
 #' dbf_colmeta(shp_example("mexico/cities.dbf"))
 #'
-read_dbf <- function(path, col_spec = "?", encoding = "") {
-  result <- cpp_read_dbf(path.expand(path), col_spec, encoding)
+read_dbf <- function(file, col_spec = "?", encoding = "") {
+  result <- cpp_read_dbf(path.expand(file), col_spec, encoding)
 
   df <- tibble::new_tibble(
     result[!vapply(result, is.null, logical(1))],
@@ -34,7 +34,7 @@ read_dbf <- function(path, col_spec = "?", encoding = "") {
 
   problems <- attr(result, "problems")
   if (length(problems[[1]]) > 0) {
-    problems$file <- path
+    problems$file <- file
     attr(df, "problems") <- tibble::new_tibble(problems, nrow = length(problems[[1]]))
   }
 
@@ -44,20 +44,27 @@ read_dbf <- function(path, col_spec = "?", encoding = "") {
 
 #' @rdname read_dbf
 #' @export
-dbf_meta <- function(path) {
-  if (length(path) > 1) {
-    metas <- lapply(path, dbf_meta)
-    return(do.call(rbind, metas))
+dbf_meta <- function(file) {
+  if (length(file) != 1) {
+    metas <- lapply(file, dbf_meta)
+    ptype <- tibble::tibble(
+      file = character(),
+      row_count = integer(),
+      field_count = integer(),
+      encoding = character()
+    )
+
+    return(vctrs::vec_rbind(ptype, !!! metas))
   }
 
-  result <- cpp_dbf_meta(path.expand(path))
-  tibble::new_tibble(c(list(path = path), result), nrow = length(result[[1]]))
+  result <- cpp_dbf_meta(path.expand(file))
+  tibble::new_tibble(c(list(file = file), result), nrow = length(result[[1]]))
 }
 
 #' @rdname read_dbf
 #' @export
-dbf_colmeta <- function(path) {
-  result <- cpp_dbf_colmeta(path.expand(path))
+dbf_colmeta <- function(file) {
+  result <- cpp_dbf_colmeta(path.expand(file))
   result$type <- rawToChar(result$type, multiple = TRUE)
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }

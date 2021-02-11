@@ -6,14 +6,14 @@
 \alias{dbf_colmeta}
 \title{Read .dbf files}
 \usage{
-read_dbf(path, col_spec = "?", encoding = "")
+read_dbf(file, col_spec = "?", encoding = "")
 
-dbf_meta(path)
+dbf_meta(file)
 
-dbf_colmeta(path)
+dbf_colmeta(file)
 }
 \arguments{
-\item{path}{A filename of a .dbf file.}
+\item{file}{A filename of a .dbf file.}
 
 \item{col_spec}{A character vector of length one with
 one character for each column or one character to be used
