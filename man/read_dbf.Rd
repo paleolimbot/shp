@@ -6,7 +6,7 @@
 \alias{dbf_colmeta}
 \title{Read .dbf files}
 \usage{
-read_dbf(file, col_spec = "?", encoding = "")
+read_dbf(file, col_spec = "?", encoding = NA)
 
 dbf_meta(file)
 
@@ -28,8 +28,9 @@ for all columns. The following characters are supported
 \item "l": Parse as logical
 }}
 
-\item{encoding}{Override the automatically guessed
-encoding.}
+\item{encoding}{Use \code{NA} to automatically guess encoding,
+\code{""} to use system encoding, or a length-one character
+vector overriding the automatically detected encoding.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}}
@@ -39,6 +40,7 @@ Read .dbf files
 }
 \examples{
 read_dbf(shp_example("mexico/cities.dbf"))
+dbf_meta(shp_example("mexico/cities.dbf"))
 dbf_colmeta(shp_example("mexico/cities.dbf"))
 
 }

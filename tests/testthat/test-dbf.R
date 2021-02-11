@@ -78,7 +78,7 @@ test_that("dbf_meta() runs for all example dbf files", {
 
   meta <- dbf_meta(all_dbf)
   expect_identical(nrow(meta), length(all_dbf))
-  expect_setequal(meta$encoding, c("ISO-8859-1", "CP437", "UTF-8", ""))
+  expect_setequal(meta$encoding, c("ISO-8859-1", "CP437", "UTF-8", NA))
 
   expect_identical(colnames(dbf_meta(character())), colnames(meta))
 })
