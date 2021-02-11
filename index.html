@@ -86,12 +86,12 @@
 <p>This is a basic example which shows you how to solve a common problem:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/paleolimbot/shp">shp</a></span><span class="op">)</span>
-<span class="fu"><a href="reference/shp_file_meta.html">shp_file_meta</a></span><span class="op">(</span><span class="fu"><a href="reference/shp_example.html">shp_example</a></span><span class="op">(</span><span class="st">"mexico/cities.shp"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="reference/shp_meta.html">shp_meta</a></span><span class="op">(</span><span class="fu"><a href="reference/shp_example.html">shp_example</a></span><span class="op">(</span><span class="st">"mexico/cities.shp"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 1 x 11</span>
 <span class="co">#&gt;   path       shp_type n_features  xmin  ymin  zmin  mmin  xmax  ymax  zmax  mmax</span>
 <span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
 <span class="co">#&gt; 1 /Library/… point            36 -115.  16.6     0     0 -88.3  32.6     0     0</span>
-<span class="fu"><a href="reference/shp_file_meta.html">shp_geometry_meta</a></span><span class="op">(</span><span class="fu"><a href="reference/shp_example.html">shp_example</a></span><span class="op">(</span><span class="st">"mexico/cities.shp"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="reference/shp_meta.html">shp_geometry_meta</a></span><span class="op">(</span><span class="fu"><a href="reference/shp_example.html">shp_example</a></span><span class="op">(</span><span class="st">"mexico/cities.shp"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 36 x 11</span>
 <span class="co">#&gt;    shape_id n_parts n_vertices   xmin  ymin  zmin  mmin   xmax  ymax  zmax  mmax</span>
 <span class="co">#&gt;       &lt;int&gt;   &lt;int&gt;      &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
