@@ -22,7 +22,7 @@
 #'
 #' @examples
 #' read_dbf(shp_example("mexico/cities.dbf"))
-#' read_dbf_colmeta(shp_example("mexico/cities.dbf"))
+#' dbf_colmeta(shp_example("mexico/cities.dbf"))
 #'
 read_dbf <- function(path, col_spec = "?", encoding = "") {
   result <- cpp_read_dbf(path.expand(path), col_spec, encoding)
@@ -44,8 +44,20 @@ read_dbf <- function(path, col_spec = "?", encoding = "") {
 
 #' @rdname read_dbf
 #' @export
-read_dbf_colmeta <- function(path) {
-  result <- cpp_read_dbf_colmeta(path.expand(path))
+dbf_meta <- function(path) {
+  if (length(path) > 1) {
+    metas <- lapply(path, dbf_meta)
+    return(do.call(rbind, metas))
+  }
+
+  result <- cpp_dbf_meta(path.expand(path))
+  tibble::new_tibble(c(list(path = path), result), nrow = length(result[[1]]))
+}
+
+#' @rdname read_dbf
+#' @export
+dbf_colmeta <- function(path) {
+  result <- cpp_dbf_colmeta(path.expand(path))
   result$type <- rawToChar(result$type, multiple = TRUE)
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }

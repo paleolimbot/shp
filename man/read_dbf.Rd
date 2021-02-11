@@ -2,12 +2,15 @@
 % Please edit documentation in R/dbf.R
 \name{read_dbf}
 \alias{read_dbf}
-\alias{read_dbf_colmeta}
+\alias{dbf_meta}
+\alias{dbf_colmeta}
 \title{Read .dbf files}
 \usage{
 read_dbf(path, col_spec = "?", encoding = "")
 
-read_dbf_colmeta(path)
+dbf_meta(path)
+
+dbf_colmeta(path)
 }
 \arguments{
 \item{path}{A filename of a .dbf file.}
@@ -36,6 +39,6 @@ Read .dbf files
 }
 \examples{
 read_dbf(shp_example("mexico/cities.dbf"))
-read_dbf_colmeta(shp_example("mexico/cities.dbf"))
+dbf_colmeta(shp_example("mexico/cities.dbf"))
 
 }

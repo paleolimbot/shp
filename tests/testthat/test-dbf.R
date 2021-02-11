@@ -57,7 +57,7 @@ test_that("read_dbf() runs for all example dbf files", {
   }
 })
 
-test_that("read_dbf_colmeta() runs for all example dbf files", {
+test_that("dbf_colmeta() runs for all example dbf files", {
   all_dbf <- list.files(
     system.file("shp", package = "shp"), ".dbf",
     recursive = TRUE,
@@ -65,6 +65,18 @@ test_that("read_dbf_colmeta() runs for all example dbf files", {
   )
 
   for (dbf in all_dbf) {
-    expect_is(read_dbf_colmeta(!! dbf), "data.frame")
+    expect_is(dbf_colmeta(!! dbf), "data.frame")
   }
+})
+
+test_that("dbf_meta() runs for all example dbf files", {
+  all_dbf <- list.files(
+    system.file("shp", package = "shp"), ".dbf",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+
+  meta <- dbf_meta(all_dbf)
+  expect_identical(nrow(meta), length(all_dbf))
+  expect_setequal(meta$encoding, c("ISO-8859-1", "CP437", "UTF-8", ""))
 })

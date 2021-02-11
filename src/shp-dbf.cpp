@@ -511,9 +511,22 @@ private:
 };
 
 
+[[cpp11::register]]
+list cpp_dbf_meta(std::string filename) {
+    DBFFile dbf(filename);
+
+    writable::integers row_count = {dbf.row_count()};
+    writable::integers field_count = {dbf.field_count()};
+    writable::strings encoding = {dbf.encoding()};
+
+    writable::list result = {row_count, field_count, encoding};
+    result.names() = {"row_count", "field_count", "encoding"};
+    return result;
+}
+
 
 [[cpp11::register]]
-list cpp_read_dbf_colmeta(std::string filename) {
+list cpp_dbf_colmeta(std::string filename) {
     DBFFile dbf(filename);
     int field_count = dbf.field_count();
 
@@ -539,6 +552,7 @@ list cpp_read_dbf_colmeta(std::string filename) {
 [[cpp11::register]]
 list cpp_read_dbf(std::string filename, std::string col_spec, std::string encoding) {
     DBFFile dbf(filename, encoding);
+
     int field_count = dbf.field_count();
     int row_count = dbf.row_count();
 
