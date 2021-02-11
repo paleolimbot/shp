@@ -1,7 +1,7 @@
 
 #' Read shapefile meta information
 #'
-#' @param path A vector of filenames.
+#' @param file A vector of filenames.
 #' @param indices A vector of positive integers giving the
 #'   indices of the desired features.
 #'
@@ -9,14 +9,15 @@
 #' @export
 #'
 #' @examples
-#' shp_file_meta(shp_example("mexico/cities.shp"))
+#' shp_meta(shp_example("mexico/cities.shp"))
 #' shp_geometry_meta(shp_example("mexico/cities.shp"))
 #'
-shp_file_meta <- function(path) {
-  if (length(path) == 0) {
-    tibble::new_tibble(
+shp_meta <- function(file) {
+  if (length(file) != 1) {
+    metas <- lapply(file, shp_meta)
+    ptype <- tibble::new_tibble(
       list(
-        path = character(0),
+        file = character(0),
         shp_type = character(0),
         n_features = integer(0),
         xmin = double(), ymin = double(), zmin = double(), mmin = double(),
@@ -24,39 +25,37 @@ shp_file_meta <- function(path) {
       ),
       nrow = 0L
     )
-  } else if (length(path) > 1) {
-    metas <- lapply(path, shp_file_meta)
-    do.call(rbind, metas)
-  } else {
-    path_exp <- path.expand(path)
-    meta <- .Call(shp_c_file_meta, path_exp)
-
-    # make ranges into their own columns
-    ranges <- c(as.list(meta$bounds_min), as.list(meta$bounds_max))
-    names(ranges) <- c("xmin", "ymin", "zmin", "mmin", "xmax", "ymax", "zmax", "mmax")
-    meta$bounds_min <- NULL
-    meta$bounds_max <- NULL
-
-    # make shp_type human-readable
-    meta$shp_type <- shp_types$shp_type[match(meta$shp_type, shp_types$shp_type_id)]
-
-    tibble::new_tibble(c(list(path = path), meta, ranges), nrow = 1L)
+    return(vctrs::vec_rbind(ptype, !!! metas))
   }
+
+  file_exp <- path.expand(file)
+  meta <- .Call(shp_c_file_meta, file_exp)
+
+  # make ranges into their own columns
+  ranges <- c(as.list(meta$bounds_min), as.list(meta$bounds_max))
+  names(ranges) <- c("xmin", "ymin", "zmin", "mmin", "xmax", "ymax", "zmax", "mmax")
+  meta$bounds_min <- NULL
+  meta$bounds_max <- NULL
+
+  # make shp_type human-readable
+  meta$shp_type <- shp_types$shp_type[match(meta$shp_type, shp_types$shp_type_id)]
+
+  tibble::new_tibble(c(list(file = file), meta, ranges), nrow = 1L)
 }
 
-#' @rdname shp_file_meta
+#' @rdname shp_meta
 #' @export
-shp_geometry_meta <- function(path, indices = NULL) {
-  path <- path.expand(path)
-  stopifnot(length(path) == 1)
+shp_geometry_meta <- function(file, indices = NULL) {
+  file <- path.expand(file)
+  stopifnot(length(file) == 1)
 
   if (is.null(indices)) {
-    indices <- seq_len(shp_file_meta(path)$n_features)
+    indices <- seq_len(shp_meta(file)$n_features)
   } else {
     indices <- as.integer(indices)
   }
 
-  result <- .Call(shp_c_geometry_meta, path, indices)
+  result <- .Call(shp_c_geometry_meta, file, indices)
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 

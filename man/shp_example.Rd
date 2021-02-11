@@ -5,12 +5,12 @@
 \alias{shp_example_all}
 \title{Read an example shapefile}
 \usage{
-shp_example(example_path)
+shp_example(example_file)
 
 shp_example_all()
 }
 \arguments{
-\item{example_path}{An example filename (see examples for a list of names)}
+\item{example_file}{An example filename (see examples for a list of names)}
 }
 \value{
 A full path to the example file

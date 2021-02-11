@@ -22,6 +22,7 @@
 #'
 #' @examples
 #' read_dbf(shp_example("mexico/cities.dbf"))
+#' dbf_meta(shp_example("mexico/cities.dbf"))
 #' dbf_colmeta(shp_example("mexico/cities.dbf"))
 #'
 read_dbf <- function(file, col_spec = "?", encoding = "") {

@@ -31,7 +31,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(shp)
-shp_file_meta(shp_example("mexico/cities.shp"))
+shp_meta(shp_example("mexico/cities.shp"))
 #> # A tibble: 1 x 11
 #>   path       shp_type n_features  xmin  ymin  zmin  mmin  xmax  ymax  zmax  mmax
 #>   <chr>      <chr>         <int> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>

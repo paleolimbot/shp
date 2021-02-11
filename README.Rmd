@@ -36,6 +36,6 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(shp)
-shp_file_meta(shp_example("mexico/cities.shp"))
+shp_meta(shp_example("mexico/cities.shp"))
 shp_geometry_meta(shp_example("mexico/cities.shp"))
 ```
