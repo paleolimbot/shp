@@ -22,4 +22,5 @@ LinkingTo:
 SystemRequirements: C++11
 Imports: 
     tibble,
-    vctrs
+    vctrs,
+    fs
