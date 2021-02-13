@@ -160,7 +160,7 @@ shp_extensions <- function() {
     "cpg", # code page (encoding for dbf)
     "prj", # projection
     "xml", "aux", # metadata
-    "sbn", "sbx", # spatial index
+    "sbn", "sbx", "qix", # spatial index
     "fbn", "fbx", # read-only spatial index
     "atx", # ArcCatalog-related
     "ixs", "mxs" # geocoding indexeses
