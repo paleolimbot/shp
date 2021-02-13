@@ -23,4 +23,5 @@ SystemRequirements: C++11
 Imports: 
     tibble,
     vctrs,
-    fs
+    fs,
+    rlang
