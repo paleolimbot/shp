@@ -15,6 +15,6 @@
 #' @importFrom rlang :=
 read_shp <- function(file, col_spec = "?", encoding = NA, geometry_col = "geometry") {
   shp_assert(file)
-  result <- read_dbf(gsub("\\.shp$", ".dbf", file), col_spec = col_spec, encoding = encoding)
+  result <- read_dbf(file, col_spec = col_spec, encoding = encoding)
   vctrs::vec_cbind(result, !! geometry_col := shp_geometry(file))
 }

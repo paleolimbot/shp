@@ -27,6 +27,8 @@
 #' dbf_colmeta(shp_example("mexico/cities.dbf"))
 #'
 read_dbf <- function(file, col_spec = "?", encoding = NA) {
+  file <- make_dbf(file)
+
   # encoding of "" typically means "system" in R, but for simpifying the
   # C++ code, we use "" to mean "Unknown" in C++.
   if (identical(encoding, NA)) {
@@ -55,6 +57,8 @@ read_dbf <- function(file, col_spec = "?", encoding = NA) {
 #' @rdname read_dbf
 #' @export
 dbf_meta <- function(file) {
+  file <- make_dbf(file)
+
   if (length(file) != 1) {
     metas <- lapply(file, dbf_meta)
     ptype <- tibble::tibble(
@@ -81,6 +85,7 @@ dbf_meta <- function(file) {
 #' @rdname read_dbf
 #' @export
 dbf_colmeta <- function(file) {
+  file <- make_dbf(file)
   result <- cpp_dbf_colmeta(path.expand(file))
   result$type <- rawToChar(result$type, multiple = TRUE)
   tibble::new_tibble(result, nrow = length(result[[1]]))
@@ -100,4 +105,9 @@ warn_problems <- function(df) {
   }
 
   invisible(df)
+}
+
+# allow .shp files here also!
+make_dbf <- function(file) {
+  gsub("\\.shp$", ".dbf", file)
 }
