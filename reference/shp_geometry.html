@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • shp</title>
+<title>Create a shapefile geometry vector — shp_geometry • shp</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Create a shapefile geometry vector — shp_geometry" />
+<meta property="og:description" content="Create a shapefile geometry vector" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -105,72 +106,47 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Create a shapefile geometry vector</h1>
+    <small class="dont-index">Source: <a href='https://github.com/paleolimbot/shp/blob/master/R/shp-geometry.R'><code>R/shp-geometry.R</code></a></small>
+    <div class="hidden name"><code>shp_geometry.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Create a shapefile geometry vector</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>shp_geometry</span><span class='op'>(</span><span class='va'>file</span><span class='op'>)</span>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="read_dbf.html">read_dbf()</a></code> <code><a href="read_dbf.html">dbf_meta()</a></code> <code><a href="read_dbf.html">dbf_colmeta()</a></code> </p>
-        </td>
-        <td><p>Read .dbf files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shapelib_version.html">shapelib_version()</a></code> </p>
-        </td>
-        <td><p>External software versions</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_example.html">shp_example()</a></code> <code><a href="shp_example.html">shp_example_all()</a></code> </p>
-        </td>
-        <td><p>Read an example shapefile</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_geometry.html">shp_geometry()</a></code> <code><a href="shp_geometry.html">new_shp_geometry()</a></code> </p>
-        </td>
-        <td><p>Create a shapefile geometry vector</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_list_files.html">shp_list_files()</a></code> <code><a href="shp_list_files.html">shp_delete()</a></code> <code><a href="shp_list_files.html">shp_copy()</a></code> <code><a href="shp_list_files.html">shp_move()</a></code> <code><a href="shp_list_files.html">shp_assert()</a></code> <code><a href="shp_list_files.html">shp_extensions()</a></code> </p>
-        </td>
-        <td><p>List files associated with a shapefile</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_meta.html">shp_meta()</a></code> <code><a href="shp_meta.html">shp_geometry_meta()</a></code> </p>
-        </td>
-        <td><p>Read shapefile meta information</p></td>
-      </tr>
-    </tbody>
+<span class='fu'>new_shp_geometry</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>file</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>A vector of filenames.</p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p>A vector of zero-based indices corresponding to the
+internal <code>shape_id</code> within the shapefile.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A vector</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>shp_geometry</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;shp:pointz[8]&gt;
+#&gt; /Users/runner/work/_temp/Library/shp/shp/3dpoints.shp: {0, 1, 2, 3, 4, ..., 7}
+#&gt; [1] (0.4064 7.4848 0) (2.5184 7.4848 0) (6.3904 7.4144 0) (9.5584 7.3440 0)
+#&gt; [5] (0.0544 4.1760 0) (0.0000 0.0000 0) (0.0000 0.0000 0) (9.7696 3.6128 0)</div><div class='input'>
+</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
