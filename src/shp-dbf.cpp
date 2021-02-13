@@ -397,6 +397,7 @@ public:
                 problems.add_problem(row_index, field_index, "no trailing characters", chars);
                 result_[i++] = NA_INTEGER;
             } else if ((value > INT_MAX) || (value < NA_INTEGER)) {
+                problems.add_problem(row_index, field_index, "an integer in the 32-bit signed range", chars);
                 result_[i++] = NA_INTEGER;
             } else {
                 result_[i++] = value;
