@@ -82,6 +82,8 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
     wk_handler_t* handler = reader->handler;
     int result;
 
+    SHPSetFastModeReadObject(reader->hSHP, 1);
+
     int* indices = INTEGER(reader->shp_geometry);
     int size = Rf_length(reader->shp_geometry);
 
@@ -118,8 +120,16 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
         }
 
         meta.size = reader->hObj->nVertices;
-        has_m = reader->hObj->bMeasureIsUsed;
-        if (has_m) meta.flags |= WK_FLAG_HAS_M;
+
+        // in fast mode, bMeasureIsUsed is not a thing, but we can use the definition
+        // of a no-data value in the shapefile spec, which is anything < -1e38
+        if ((reader->hObj->nVertices > 0) && (reader->hObj->padfM[0] > -1e38)) {
+            has_m = 1;
+            meta.flags |= WK_FLAG_HAS_M;
+        } else {
+            has_m = 0;
+            meta.flags &= ~WK_FLAG_HAS_M;
+        }
 
         HANDLE_CONTINUE_OR_BREAK(handler->feature_start(vector_meta, i, handler->handler_data));
         HANDLE_CONTINUE_OR_BREAK(handler->geometry_start(&meta, WK_PART_ID_NONE, handler->handler_data));
