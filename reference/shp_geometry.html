@@ -119,7 +119,7 @@
 
     <pre class="usage"><span class='fu'>shp_geometry</span><span class='op'>(</span><span class='va'>file</span><span class='op'>)</span>
 
-<span class='fu'>new_shp_geometry</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>file</span><span class='op'>)</span></pre>
+<span class='fu'>new_shp_geometry</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>file</span>, crs <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -133,6 +133,10 @@
       <td><p>A vector of zero-based indices corresponding to the
 internal <code>shape_id</code> within the shapefile.</p></td>
     </tr>
+    <tr>
+      <th>crs</th>
+      <td><p>An object that can be interpreted as a CRS</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -140,11 +144,22 @@ internal <code>shape_id</code> within the shapefile.</p></td>
     <p>A vector</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>shp_geometry</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='va'>shp_geom</span> <span class='op'>&lt;-</span> <span class='fu'>shp_geometry</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>shp_geom</span>
 </div><div class='output co'>#&gt; &lt;shp:pointz[8]&gt;
 #&gt; /Users/runner/work/_temp/Library/shp/shp/3dpoints.shp: {0, 1, 2, 3, 4, ..., 7}
 #&gt; [1] (0.4064 7.4848 0) (2.5184 7.4848 0) (6.3904 7.4144 0) (9.5584 7.3440 0)
 #&gt; [5] (0.0544 4.1760 0) (0.0000 0.0000 0) (0.0000 0.0000 0) (9.7696 3.6128 0)</div><div class='input'>
+<span class='fu'>wk</span><span class='fu'>::</span><span class='fu'><a href='https://paleolimbot.github.io/wk/reference/wkb.html'>as_wkb</a></span><span class='op'>(</span><span class='va'>shp_geom</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;wk_wkb[8]&gt;
+#&gt; [1] &lt;POINT Z (0.4064 7.4848 0)&gt; &lt;POINT Z (2.5184 7.4848 0)&gt;
+#&gt; [3] &lt;POINT Z (6.3904 7.4144 0)&gt; &lt;POINT Z (9.5584 7.344 0)&gt; 
+#&gt; [5] &lt;POINT Z (0.0544 4.176 0)&gt;  &lt;POINT Z (nan nan nan)&gt;    
+#&gt; [7] &lt;POINT Z (nan nan nan)&gt;     &lt;POINT Z (9.7696 3.6128 0)&gt;</div><div class='input'><span class='fu'>wk</span><span class='fu'>::</span><span class='fu'><a href='https://paleolimbot.github.io/wk/reference/xy.html'>as_xy</a></span><span class='op'>(</span><span class='va'>shp_geom</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;wk_xyz[8]&gt;
+#&gt; [1] Z (0.4064 7.4848  0) Z (2.5184 7.4848  0) Z (6.3904 7.4144  0)
+#&gt; [4] Z (9.5584 7.3440  0) Z (0.0544 4.1760  0) Z (    NA     NA NA)
+#&gt; [7] Z (    NA     NA NA) Z (9.7696 3.6128  0)</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
