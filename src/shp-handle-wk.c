@@ -123,7 +123,10 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
 
         // in fast mode, bMeasureIsUsed is not a thing, but we can use the definition
         // of a no-data value in the shapefile spec, which is anything < -1e38
-        if ((reader->hObj->nVertices > 0) && (reader->hObj->padfM[0] > -1e38)) {
+        if (reader->hObj->nVertices == 0) {
+            has_m = 0;
+            meta.flags &= ~WK_FLAG_HAS_M;
+        } else if (reader->hObj->bMeasureIsUsed && (reader->hObj->padfM[0] > -1e38)) {
             has_m = 1;
             meta.flags |= WK_FLAG_HAS_M;
         } else {
