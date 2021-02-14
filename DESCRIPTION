@@ -11,6 +11,7 @@ Description: Reads shapefiles.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Remotes: paleolimbot/wk
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
@@ -18,10 +19,12 @@ Suggests:
 URL: https://github.com/paleolimbot/shp
 BugReports: https://github.com/paleolimbot/shp/issues
 LinkingTo: 
-    cpp11
+    cpp11,
+    wk
 SystemRequirements: C++11
 Imports: 
     tibble,
     vctrs,
     fs,
-    rlang
+    rlang,
+    wk

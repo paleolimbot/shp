@@ -4,12 +4,17 @@
 #' @inheritParams shp_meta
 #' @param x A vector of zero-based indices corresponding to the
 #'   internal `shape_id` within the shapefile.
+#' @inheritParams wk::wk_crs
 #'
 #' @return A vector
 #' @export
 #'
 #' @examples
-#' shp_geometry(shp_example("3dpoints.shp"))
+#' shp_geom <- shp_geometry(shp_example("3dpoints.shp"))
+#' shp_geom
+#'
+#' wk::as_wkb(shp_geom)
+#' wk::as_xy(shp_geom)
 #'
 shp_geometry <- function(file) {
   shp_assert(file)
@@ -24,11 +29,23 @@ shp_geometry <- function(file) {
   }
 }
 
+#' @importFrom wk wk_handle
+#' @export
+wk_handle.shp_geometry <- function(handleable, handler, ...) {
+  .Call(shp_c_handle_geometry, handleable, wk::as_wk_handler(handler))
+}
+
+#' @importFrom wk wk_crs
+#' @export
+wk_crs.shp_geometry <- function(x) {
+  attr(x, "crs")
+}
+
 #' @rdname shp_geometry
 #' @export
-new_shp_geometry <- function(x, file) {
+new_shp_geometry <- function(x, file, crs = NULL) {
   vctrs::vec_assert(x, integer())
-  vctrs::new_vctr(x, file = file, class = "shp_geometry")
+  vctrs::new_vctr(x, file = file, crs = crs, class = "shp_geometry")
 }
 
 #' @importFrom vctrs vec_ptype_abbr

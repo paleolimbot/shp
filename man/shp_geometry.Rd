@@ -7,13 +7,15 @@
 \usage{
 shp_geometry(file)
 
-new_shp_geometry(x, file)
+new_shp_geometry(x, file, crs = NULL)
 }
 \arguments{
 \item{file}{A vector of filenames.}
 
 \item{x}{A vector of zero-based indices corresponding to the
 internal \code{shape_id} within the shapefile.}
+
+\item{crs}{An object that can be interpreted as a CRS}
 }
 \value{
 A vector
@@ -22,6 +24,10 @@ A vector
 Create a shapefile geometry vector
 }
 \examples{
-shp_geometry(shp_example("3dpoints.shp"))
+shp_geom <- shp_geometry(shp_example("3dpoints.shp"))
+shp_geom
+
+wk::as_wkb(shp_geom)
+wk::as_xy(shp_geom)
 
 }

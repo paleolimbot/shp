@@ -27,3 +27,16 @@ test_that("shp_geometry print/format does not error for invalid file", {
     "Does not exist"
   )
 })
+
+test_that("wk_handle.shp_geometry() works for points", {
+  shp_geom <- shp_geometry(shp_example("3dpoints.shp"))
+  xy <- wk::wk_handle(shp_geom, wk::xyzm_writer())
+  expect_true(is.na(xy[6]))
+  expect_true(is.na(xy[7]))
+
+  meta <- shp_geometry_meta(shp_example("3dpoints.shp"))
+  expect_equivalent(
+    unclass(unname(xy[-(6:7)])),
+    unclass(unname(meta[-(6:7), c("xmin", "ymin", "zmin")]))
+  )
+})

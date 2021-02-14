@@ -33,6 +33,7 @@ extern SEXP _shp_cpp_dbf_meta(SEXP);
 extern SEXP _shp_cpp_read_dbf(SEXP, SEXP, SEXP);
 extern SEXP shp_c_file_meta(SEXP);
 extern SEXP shp_c_geometry_meta(SEXP, SEXP);
+extern SEXP shp_c_handle_geometry(SEXP, SEXP);
 extern SEXP shp_c_shapelib_version();
 
 static const R_CallMethodDef CallEntries[] = {
@@ -41,6 +42,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_shp_cpp_read_dbf",      (DL_FUNC) &_shp_cpp_read_dbf,      3},
     {"shp_c_file_meta",        (DL_FUNC) &shp_c_file_meta,        1},
     {"shp_c_geometry_meta",    (DL_FUNC) &shp_c_geometry_meta,    2},
+    {"shp_c_handle_geometry",  (DL_FUNC) &shp_c_handle_geometry,  2},
     {"shp_c_shapelib_version", (DL_FUNC) &shp_c_shapelib_version, 0},
     {NULL, NULL, 0}
 };
