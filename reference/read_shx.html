@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • shp</title>
+<title>Query a .shx shapefile index — read_shx • shp</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Query a .shx shapefile index — read_shx" />
+<meta property="og:description" content="Query a .shx shapefile index" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -105,84 +106,60 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Query a .shx shapefile index</h1>
+    <small class="dont-index">Source: <a href='https://github.com/paleolimbot/shp/blob/master/R/shx.R'><code>R/shx.R</code></a></small>
+    <div class="hidden name"><code>read_shx.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Query a .shx shapefile index</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>read_shx</span><span class='op'>(</span><span class='va'>file</span>, indices <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="read_dbf.html">read_dbf()</a></code> <code><a href="read_dbf.html">dbf_meta()</a></code> <code><a href="read_dbf.html">dbf_colmeta()</a></code> </p>
-        </td>
-        <td><p>Read .dbf files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_shp.html">read_shp()</a></code> </p>
-        </td>
-        <td><p>Read .shp files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_shx.html">read_shx()</a></code> <code><a href="read_shx.html">shx_meta()</a></code> </p>
-        </td>
-        <td><p>Query a .shx shapefile index</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shapelib_version.html">shapelib_version()</a></code> </p>
-        </td>
-        <td><p>External software versions</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_example.html">shp_example()</a></code> <code><a href="shp_example.html">shp_example_all()</a></code> </p>
-        </td>
-        <td><p>Read an example shapefile</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_geometry.html">shp_geometry()</a></code> <code><a href="shp_geometry.html">new_shp_geometry()</a></code> </p>
-        </td>
-        <td><p>Create a shapefile geometry vector</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_list_files.html">shp_list_files()</a></code> <code><a href="shp_list_files.html">shp_delete()</a></code> <code><a href="shp_list_files.html">shp_copy()</a></code> <code><a href="shp_list_files.html">shp_move()</a></code> <code><a href="shp_list_files.html">shp_assert()</a></code> <code><a href="shp_list_files.html">shp_extensions()</a></code> </p>
-        </td>
-        <td><p>List files associated with a shapefile</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="shp_meta.html">shp_meta()</a></code> <code><a href="shp_meta.html">shp_geometry_meta()</a></code> </p>
-        </td>
-        <td><p>Read shapefile meta information</p></td>
-      </tr>
-    </tbody>
+<span class='fu'>shx_meta</span><span class='op'>(</span><span class='va'>file</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>A .shx file</p></td>
+    </tr>
+    <tr>
+      <th>indices</th>
+      <td><p>A vector of indices or NULL to get all offsets.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble()</a></code> with columns <code>offset</code> and <code>content_length</code>.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>shx_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"brklinz.shp"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 1 x 2</span><span>
+#&gt;   file                                                 n_features
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                                                     </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> /Users/runner/work/_temp/Library/shp/shp/brklinz.shx        122</div><div class='input'><span class='fu'>read_shx</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 22 x 2</span><span>
+#&gt;    offset content_length
+#&gt;     </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span>     50             14
+#&gt; </span><span style='color: #555555;'> 2</span><span>     68             14
+#&gt; </span><span style='color: #555555;'> 3</span><span>     86             14
+#&gt; </span><span style='color: #555555;'> 4</span><span>    104             14
+#&gt; </span><span style='color: #555555;'> 5</span><span>    122             14
+#&gt; </span><span style='color: #555555;'> 6</span><span>     63             14
+#&gt; </span><span style='color: #555555;'> 7</span><span>     63             14
+#&gt; </span><span style='color: #555555;'> 8</span><span>    176             14
+#&gt; </span><span style='color: #555555;'> 9</span><span>    194             14
+#&gt; </span><span style='color: #555555;'>10</span><span>    212             14
+#&gt; </span><span style='color: #555555;'># … with 12 more rows</span><span></div><div class='input'>
+</div></span></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
