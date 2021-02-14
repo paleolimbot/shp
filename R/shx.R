@@ -22,7 +22,7 @@ read_shx <- function(file, indices = NULL) {
       indices <- seq(0L, n_records - 1L)
     }
   } else {
-    indices <- as.integer(indices)
+    indices <- as.integer(indices) - 1L
   }
 
   result <- .Call(shp_c_read_shx, path.expand(file), indices)
