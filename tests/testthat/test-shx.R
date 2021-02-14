@@ -3,6 +3,8 @@ test_that("read_shx() works", {
   shx <- read_shx(shp_example("eccities.shp"))
   expect_true(all(shx$content_length == 10))
   expect_true(all(diff(shx$offset) == 14))
+
+  expect_error(read_shx("not a file", indices = 1), "Failed to open shx")
 })
 
 test_that("shx_meta() works", {
@@ -12,4 +14,6 @@ test_that("shx_meta() works", {
   )
 
   expect_identical(shx_meta(shp_example("eccities.shp"))$n_features, 6L)
+
+  expect_error(shx_meta("not a file"), "Failed to open shx")
 })
