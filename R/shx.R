@@ -24,8 +24,8 @@ read_shx <- function(file, indices = NULL) {
 
     index_order <- NULL
   } else {
-    indices <- as.integer(indices) - 1L
     index_order <- order(indices)
+    indices <- as.integer(indices) - 1L
     indices <- indices[index_order]
   }
 
