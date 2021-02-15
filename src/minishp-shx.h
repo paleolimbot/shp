@@ -44,8 +44,6 @@ void shx_close(shx_file_t* shx);
 }
 #endif
 
-#endif
-
 #ifdef MINISHP_IMPL
 
 // https://www.esri.com/Library/Whitepapers/Pdfs/Shapefile.pdf, page 23
@@ -155,5 +153,7 @@ void shx_close(shx_file_t* shx) {
         free(shx);
     }
 }
+
+#endif
 
 #endif

@@ -24,8 +24,6 @@ minishp_file_t minishp_file_default();
 }
 #endif
 
-#endif
-
 #ifdef MINISHP_IMPL
 
 #include <stdlib.h>
@@ -84,5 +82,7 @@ minishp_file_t minishp_file_default() {
 
     return file;
 }
+
+#endif
 
 #endif
