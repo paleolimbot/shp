@@ -13,16 +13,20 @@
 #define SHX_ERROR_SIZE 1024
 
 typedef struct {
+    uint32_t offset;
+    uint32_t content_length;
+} shx_record_t;
+
+typedef struct {
     void* file_handle;
     minishp_file_t file;
     char error_buf[SHX_ERROR_SIZE];
     uint32_t n_records;
+    uint32_t cache_size;
+    uint32_t cache_start;
+    uint32_t cache_end;
+    shx_record_t* cache;
 } shx_file_t;
-
-typedef struct {
-    uint32_t offset;
-    uint32_t content_length;
-} shx_record_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +36,7 @@ shx_file_t* shx_open(const char* filename);
 int shx_valid(shx_file_t* shx);
 uint32_t shx_n_records(shx_file_t* shx);
 size_t shx_record_n(shx_file_t* shx, shx_record_t* dest, uint32_t shape_id, size_t n);
+shx_record_t* shx_record(shx_file_t* shx, uint32_t shape_id);
 void shx_close(shx_file_t* shx);
 
 #ifdef __cplusplus
@@ -56,6 +61,10 @@ shx_file_t* shx_open(const char* filename) {
     memset(shx->error_buf, 0, SHX_ERROR_SIZE);
     shx->n_records = UINT32_MAX;
     shx->file = minishp_file_default();
+    shx->cache_size = 64;
+    shx->cache_start = UINT32_MAX;
+    shx->cache_end = UINT32_MAX;
+    shx->cache = malloc(sizeof(shx_record_t) * shx->cache_size);
 
     shx->file_handle = shx->file.fopen(filename, "rb");
     if (shx->file_handle == NULL) {
@@ -90,7 +99,7 @@ size_t shx_record_n(shx_file_t* shx, shx_record_t* dest, uint32_t shape_id, size
         return 0;
     }
 
-    size_t n_read = shx->file.fread(dest, sizeof(shx_record_t), 1, shx->file_handle);
+    size_t n_read = shx->file.fread(dest, sizeof(shx_record_t), n, shx->file_handle);
     if (n_read != n) {
         snprintf(
             shx->error_buf, SHX_ERROR_SIZE, 
@@ -108,9 +117,24 @@ size_t shx_record_n(shx_file_t* shx, shx_record_t* dest, uint32_t shape_id, size
     return n_read;
 }
 
+shx_record_t* shx_record(shx_file_t* shx, uint32_t shape_id) {
+    if (shape_id >= shx_n_records(shx)) {
+        return NULL;
+    }
+    
+    if ((shape_id < shx->cache_start) || (shape_id >= shx->cache_end)) {
+        size_t n_read = shx_record_n(shx, shx->cache, shape_id, shx->cache_size);
+        shx->cache_start = shape_id;
+        shx->cache_end = shape_id + n_read;
+    }
+
+    return shx->cache + (shape_id - shx->cache_start);
+}
+
 void shx_close(shx_file_t* shx) {
     if (shx != NULL) {
         shx->file.fclose(shx->file_handle);
+        free(shx->cache);
         free(shx);
     }
 }

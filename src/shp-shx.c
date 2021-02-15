@@ -39,17 +39,18 @@ SEXP shp_c_read_shx(SEXP filename, SEXP indices_sexp) {
         Rf_error(shx->error_buf);
     }
 
-    shx_record_t record;
-    size_t n_read;
+    shx_record_t* record;
     for (int i = 0; i < size; i++) {
-        n_read = shx_record_n(shx, &record, indices[i], 1);
-        if (n_read == 0) {
+        if ((i + 1) % 1000 == 0) R_CheckUserInterrupt();
+
+        record = shx_record(shx, indices[i]);
+        if (record == NULL) {
             offset[i] = NA_INTEGER;
             content_length[i] = NA_INTEGER;
         } else {
-            offset[i] = record.offset;
-            content_length[i] = record.content_length;
-        }
+            offset[i] = record->offset;
+            content_length[i] = record->content_length;
+        }   
     }
 
     shx_close(shx);
