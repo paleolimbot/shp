@@ -21,11 +21,20 @@ read_shx <- function(file, indices = NULL) {
     } else {
       indices <- seq(0L, n_records - 1L)
     }
+
+    index_order <- NULL
   } else {
     indices <- as.integer(indices) - 1L
+    index_order <- order(indices)
+    indices <- indices[index_order]
   }
 
   result <- .Call(shp_c_read_shx, path.expand(file), indices)
+
+  if (!is.null(index_order)) {
+    result <- lapply(result, "[", order(index_order))
+  }
+
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 

@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 shx_file_t* shx_open(const char* filename);
+void shx_set_cache_size(shx_file_t* shx, size_t cache_size);
 int shx_valid(shx_file_t* shx);
 uint32_t shx_n_records(shx_file_t* shx);
 size_t shx_record_n(shx_file_t* shx, shx_record_t* dest, uint32_t shape_id, size_t n);
@@ -72,6 +73,22 @@ shx_file_t* shx_open(const char* filename) {
     }
 
     return shx;
+}
+
+void shx_set_cache_size(shx_file_t* shx, size_t cache_size) {
+    size_t previous = shx->cache_size;
+    if (cache_size >= 1) {
+        shx->cache_size = cache_size;
+    } else {
+        shx->cache_size = 1;
+    }
+
+    if (shx->cache_size != previous) {
+        shx->cache_start = UINT32_MAX;
+        shx->cache_end = UINT32_MAX;
+        free(shx->cache);
+        shx->cache = malloc(sizeof(shx_record_t) * shx->cache_size);
+    }
 }
 
 int shx_valid(shx_file_t* shx) {
