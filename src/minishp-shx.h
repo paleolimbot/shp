@@ -90,7 +90,7 @@ void shx_set_cache_size(shx_file_t* shx, size_t cache_size) {
 }
 
 int shx_valid(shx_file_t* shx) {
-    return shx->file_handle != NULL;
+    return (shx != NULL) && (shx->file_handle != NULL);
 }
 
 uint32_t shx_n_records(shx_file_t* shx) {

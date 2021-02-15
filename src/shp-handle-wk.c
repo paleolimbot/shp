@@ -20,30 +20,47 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
     int result;
 
     int* indices = INTEGER(reader->shp_geometry);
-    int size = Rf_length(reader->shp_geometry);
+    uint32_t size = Rf_length(reader->shp_geometry);
 
+    // purely for proof-of-concept with one file type
     wk_meta_t meta;
     WK_META_RESET(meta, WK_POINT);
-    int has_z = vector_meta->flags & WK_FLAG_HAS_Z;
-    if (has_z) meta.flags |= WK_FLAG_HAS_Z;
+    meta.flags |= WK_FLAG_HAS_Z;
+    meta.size = 1;
 
-    meta.size = 0; // for now!
-
-    // set on a per-feature basis
-    int has_m = vector_meta->flags & WK_FLAG_HAS_M;
-    if (has_m) meta.flags |= WK_FLAG_HAS_Z;
+    int record_buffer_size = 64;
+    shp_shape_pointz_record_t records[64];
+    uint32_t record_start = UINT32_MAX;
+    uint32_t record_end = UINT32_MAX;
 
     wk_coord_t coord;
+    uint32_t shape_id;
+    size_t n_read;
+    shp_shape_pointz_record_t record;
 
     for (int i = 0; i < size; i++) {
         HANDLE_CONTINUE_OR_BREAK(handler->feature_start(vector_meta, i, handler->handler_data));
-        HANDLE_CONTINUE_OR_BREAK(handler->geometry_start(&meta, WK_PART_ID_NONE, handler->handler_data));
 
-        if (meta.size > 0) {
-            HANDLE_CONTINUE_OR_BREAK(handler->coord(&meta, coord, 0, handler->handler_data));
+        shape_id = indices[i];
+
+        if ((shape_id >= record_end) || (shape_id < record_start)) {
+            n_read = shp_read_pointz_record(reader->shp, records, record_buffer_size);
+            if (n_read == 0) {
+                // technically we should check if it stopped at a NULL record
+                Rf_error("Read zero pointz records (start = %d)", shape_id);
+            }
+
+            record_start = shape_id;
+            record_end = shape_id + n_read;
         }
 
+        record = records[shape_id - record_start];
+        memcpy(coord.v, record.coords, sizeof(double) * 4);
+
+        HANDLE_CONTINUE_OR_BREAK(handler->geometry_start(&meta, WK_PART_ID_NONE, handler->handler_data));
+        HANDLE_CONTINUE_OR_BREAK(handler->coord(&meta, coord, 0, handler->handler_data));
         HANDLE_CONTINUE_OR_BREAK(handler->geometry_end(&meta, WK_PART_ID_NONE, handler->handler_data));
+
         HANDLE_CONTINUE_OR_BREAK(handler->feature_end(vector_meta, i, handler->handler_data));
     }
 }
