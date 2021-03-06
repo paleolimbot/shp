@@ -23,11 +23,3 @@ A vector
 \description{
 Create a shapefile geometry vector
 }
-\examples{
-shp_geom <- shp_geometry(shp_example("3dpoints.shp"))
-shp_geom
-
-wk::as_wkb(shp_geom)
-wk::as_xy(shp_geom)
-
-}

@@ -21,7 +21,7 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} with columns \code{offset} and \
 Query a .shx shapefile index
 }
 \examples{
-shx_meta(shp_example("brklinz.shp"))
+shx_meta(shp_example("3dpoints.shp"))
 read_shx(shp_example("3dpoints.shp"))
 
 }

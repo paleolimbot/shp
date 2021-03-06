@@ -9,13 +9,6 @@
 #' @return A vector
 #' @export
 #'
-#' @examples
-#' shp_geom <- shp_geometry(shp_example("3dpoints.shp"))
-#' shp_geom
-#'
-#' wk::as_wkb(shp_geom)
-#' wk::as_xy(shp_geom)
-#'
 shp_geometry <- function(file) {
   shp_assert(file)
 
