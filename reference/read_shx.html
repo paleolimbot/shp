@@ -139,11 +139,11 @@
     <p>A <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble::tibble()</a></code> with columns <code>offset</code> and <code>content_length</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>shx_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"brklinz.shp"</span><span class='op'>)</span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='fu'>shx_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 1 x 2</span><span>
-#&gt;   file                                                 n_features
-#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>                                                     </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
-#&gt; </span><span style='color: #BCBCBC;'>1</span><span> /Users/runner/work/_temp/Library/shp/shp/brklinz.shx        122</div><div class='input'><span class='fu'>read_shx</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
+#&gt;   file                                                  n_features
+#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>                                                      </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #BCBCBC;'>1</span><span> /Users/runner/work/_temp/Library/shp/shp/3dpoints.shx         22</div><div class='input'><span class='fu'>read_shx</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"3dpoints.shp"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; </span><span style='color: #949494;'># A tibble: 22 x 2</span><span>
 #&gt;    offset content_length
 #&gt;     </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>          </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
