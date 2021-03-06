@@ -158,31 +158,31 @@ vector overriding the automatically detected encoding.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>read_dbf</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 36 x 4</span><span>
+</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 36 x 4</span><span>
 #&gt;    NAME               CAPITAL STATE_NAME            POPULATION
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>              </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                      </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span> Monterrey          Y       Nuevo Leon               2</span><span style='text-decoration: underline;'>015</span><span>000
-#&gt; </span><span style='color: #555555;'> 2</span><span> Mazatlan           N       Sinaloa                   </span><span style='text-decoration: underline;'>199</span><span>830
-#&gt; </span><span style='color: #555555;'> 3</span><span> Guadalajara        Y       Jalisco                  2</span><span style='text-decoration: underline;'>325</span><span>000
-#&gt; </span><span style='color: #555555;'> 4</span><span> Tampico            N       Tamaulipas                </span><span style='text-decoration: underline;'>435</span><span>000
-#&gt; </span><span style='color: #555555;'> 5</span><span> Mexico City        C       Distrito Federal        14</span><span style='text-decoration: underline;'>100</span><span>000
-#&gt; </span><span style='color: #555555;'> 6</span><span> Puebla de Zaragoza Y       Puebla                   1</span><span style='text-decoration: underline;'>055</span><span>000
-#&gt; </span><span style='color: #555555;'> 7</span><span> Veracruz           N       Veracruz-Llave            </span><span style='text-decoration: underline;'>385</span><span>000
-#&gt; </span><span style='color: #555555;'> 8</span><span> Oaxaca             Y       Oaxaca                    </span><span style='text-decoration: underline;'>154</span><span>223
-#&gt; </span><span style='color: #555555;'> 9</span><span> Merida             Y       Yucatan                   </span><span style='text-decoration: underline;'>400</span><span>142
-#&gt; </span><span style='color: #555555;'>10</span><span> Mexicali           Y       Baja California Norte     </span><span style='text-decoration: underline;'>365</span><span>000
-#&gt; </span><span style='color: #555555;'># … with 26 more rows</span><span></div><div class='input'><span class='fu'>dbf_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 1 x 4</span><span>
+#&gt;    </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>              </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>                      </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #BCBCBC;'> 1</span><span> Monterrey          Y       Nuevo Leon               2</span><span style='text-decoration: underline;'>015</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 2</span><span> Mazatlan           N       Sinaloa                   </span><span style='text-decoration: underline;'>199</span><span>830
+#&gt; </span><span style='color: #BCBCBC;'> 3</span><span> Guadalajara        Y       Jalisco                  2</span><span style='text-decoration: underline;'>325</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 4</span><span> Tampico            N       Tamaulipas                </span><span style='text-decoration: underline;'>435</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 5</span><span> Mexico City        C       Distrito Federal        14</span><span style='text-decoration: underline;'>100</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 6</span><span> Puebla de Zaragoza Y       Puebla                   1</span><span style='text-decoration: underline;'>055</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 7</span><span> Veracruz           N       Veracruz-Llave            </span><span style='text-decoration: underline;'>385</span><span>000
+#&gt; </span><span style='color: #BCBCBC;'> 8</span><span> Oaxaca             Y       Oaxaca                    </span><span style='text-decoration: underline;'>154</span><span>223
+#&gt; </span><span style='color: #BCBCBC;'> 9</span><span> Merida             Y       Yucatan                   </span><span style='text-decoration: underline;'>400</span><span>142
+#&gt; </span><span style='color: #BCBCBC;'>10</span><span> Mexicali           Y       Baja California Norte     </span><span style='text-decoration: underline;'>365</span><span>000
+#&gt; </span><span style='color: #949494;'># … with 26 more rows</span><span></div><div class='input'><span class='fu'>dbf_meta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #949494;'># A tibble: 1 x 4</span><span>
 #&gt;   file                                            row_count field_count encoding
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                                               </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   
-#&gt; </span><span style='color: #555555;'>1</span><span> /Users/runner/work/_temp/Library/shp/shp/mexic…        36           4 </span><span style='color: #BB0000;'>NA</span><span>      </div><div class='input'><span class='fu'>dbf_colmeta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 4 x 4</span><span>
+#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>                                               </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>   
+#&gt; </span><span style='color: #BCBCBC;'>1</span><span> /Users/runner/work/_temp/Library/shp/shp/mexic…        36           4 </span><span style='color: #BB0000;'>NA</span><span>      </div><div class='input'><span class='fu'>dbf_colmeta</span><span class='op'>(</span><span class='fu'><a href='shp_example.html'>shp_example</a></span><span class='op'>(</span><span class='st'>"mexico/cities.dbf"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #949494;'># A tibble: 4 x 4</span><span>
 #&gt;   name       type  width precision
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span> NAME       C        51         0
-#&gt; </span><span style='color: #555555;'>2</span><span> CAPITAL    C         1         0
-#&gt; </span><span style='color: #555555;'>3</span><span> STATE_NAME C        25         0
-#&gt; </span><span style='color: #555555;'>4</span><span> POPULATION N        11         0</div><div class='input'>
+#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #BCBCBC;'>1</span><span> NAME       C        51         0
+#&gt; </span><span style='color: #BCBCBC;'>2</span><span> CAPITAL    C         1         0
+#&gt; </span><span style='color: #BCBCBC;'>3</span><span> STATE_NAME C        25         0
+#&gt; </span><span style='color: #BCBCBC;'>4</span><span> POPULATION N        11         0</div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
