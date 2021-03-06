@@ -33,7 +33,7 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
     uint32_t record_start = UINT32_MAX;
     uint32_t record_end = UINT32_MAX;
 
-    wk_coord_t coord;
+    double coord[4];
     uint32_t shape_id;
     size_t n_read;
     shp_shape_pointz_record_t record;
@@ -55,7 +55,7 @@ void shp_handle_geometry_point(shp_reader_t* reader, const wk_vector_meta_t* vec
         }
 
         record = records[shape_id - record_start];
-        memcpy(coord.v, record.coords, sizeof(double) * 4);
+        memcpy(coord, record.coords, sizeof(double) * 4);
 
         HANDLE_CONTINUE_OR_BREAK(handler->geometry_start(&meta, WK_PART_ID_NONE, handler->handler_data));
         HANDLE_CONTINUE_OR_BREAK(handler->coord(&meta, coord, 0, handler->handler_data));
